@@ -5,9 +5,9 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from app.core import database
 
 
-def test_engine_is_async():
-    # Assert: el engine se construyo como asincrono
-    assert isinstance(database.engine, AsyncEngine)
+def test_get_engine_returns_async_engine():
+    # Assert: el engine se construye como asincrono (lazy)
+    assert isinstance(database.get_engine(), AsyncEngine)
 
 
 def test_get_db_is_async_generator():

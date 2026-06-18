@@ -10,6 +10,7 @@ from app.core.config import get_settings
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Punto unico de arranque/cierre de recursos del proceso
+    # Placeholder intencional: aqui se conectaran recursos de arranque/cierre cuando hagan falta.
     yield
 
 

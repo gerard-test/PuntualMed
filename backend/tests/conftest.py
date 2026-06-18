@@ -4,11 +4,8 @@ import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
-# Valor minimo necesario para importar modulos que llaman a get_settings()
-# en tiempo de carga (ej. app.core.database). Se establece antes de la
-# recoleccion de tests para que los imports de modulo no fallen.
-# Debe definirse antes de importar la app: app.core.database construye el engine al importarse
-# (durante la coleccion de pytest), antes de que corran los fixtures.
+# DATABASE_URL para los tests. Produccion ya NO requiere el entorno al importar (engine lazy);
+# esto solo cubre los tests que importan app.core.database directamente.
 os.environ.setdefault(
     "DATABASE_URL", "postgresql+asyncpg://test:test@localhost:5432/test"
 )
