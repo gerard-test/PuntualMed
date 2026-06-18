@@ -1,0 +1,81 @@
+// PuntualMed - Modelo de datos
+// Renderizar (sin instalar nada): https://dbdiagram.io  ->  pegar este archivo
+// Fuente de verdad del esquema: docs/superpowers/specs/2026-06-15-puntualmed-design.md (seccion 6)
+
+Table profiles {
+  id uuid [pk, note: 'Coincide con auth.users.id de Supabase']
+  full_name text
+  expo_push_token text [null]
+  created_at timestamptz [default: `now()`]
+}
+
+Table caregivers {
+  id uuid [pk]
+  user_id uuid [ref: > profiles.id]
+  name text
+  telegram_chat_id text [null]
+  link_token text [null, note: 'Token temporal para vincular el chat de Telegram']
+  linked_at timestamptz [null]
+  created_at timestamptz
+}
+
+Table medications {
+  id uuid [pk]
+  user_id uuid [ref: > profiles.id]
+  name text
+  dose text [note: 'ej. 500 mg']
+  frequency_hours int [null, note: 'Alternativa a horarios fijos']
+  start_date date
+  duration_days int [note: 'Duracion del tratamiento']
+  end_date date [note: 'Derivado: start_date + duration_days']
+  notes text [null]
+  source text [note: 'manual | ocr']
+  active boolean [default: true]
+  created_at timestamptz
+}
+
+Table medication_schedules {
+  id uuid [pk]
+  medication_id uuid [ref: > medications.id]
+  time_of_day time [note: 'ej. 08:00, 16:00']
+}
+
+Table intake_logs {
+  id uuid [pk]
+  user_id uuid [ref: > profiles.id]
+  medication_id uuid [ref: > medications.id]
+  scheduled_at timestamptz [note: 'Momento programado de la toma']
+  status text [note: 'pending | taken | missed']
+  confirmed_at timestamptz [null]
+  photo_url text [null, note: 'Foto de confirmacion en Storage']
+  alert_sent boolean [default: false, note: 'Idempotencia de la alerta']
+  created_at timestamptz
+}
+
+Table symptoms {
+  id uuid [pk]
+  user_id uuid [ref: > profiles.id]
+  medication_id uuid [ref: > medications.id, null]
+  description text
+  severity text [null, note: 'leve | moderado | severo']
+  occurred_at timestamptz
+  created_at timestamptz
+}
+
+Table prescriptions {
+  id uuid [pk]
+  user_id uuid [ref: > profiles.id]
+  image_url text [note: 'Foto de la receta en Storage']
+  extracted_json jsonb [null, note: 'Salida estructurada del OCR de IA']
+  status text [note: 'processing | done | failed']
+  created_at timestamptz
+}
+
+Table ai_messages {
+  id uuid [pk]
+  user_id uuid [ref: > profiles.id]
+  kind text [note: 'symptom_analysis | adherence | side_effects']
+  role text [note: 'user | assistant']
+  content text
+  created_at timestamptz
+}
