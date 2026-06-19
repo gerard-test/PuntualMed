@@ -13,7 +13,8 @@ from app.core.security import (
     get_current_user,
 )
 
-_SECRET = "test-jwt-secret"  # debe coincidir con conftest
+# Secret de prueba >= 32 bytes (minimo HS256 de RFC 7518); debe coincidir con conftest
+_SECRET = "test-jwt-secret-with-at-least-32-bytes"
 
 
 def _make_token(sub: str, exp_delta: int = 3600, aud: str = "authenticated") -> str:
@@ -39,7 +40,9 @@ def test_decode_expired_token_raises():
 
 def test_decode_bad_signature_raises():
     with pytest.raises(jwt.PyJWTError):
-        decode_supabase_token(_make_token(str(uuid.uuid4())), "wrong-secret")
+        decode_supabase_token(
+            _make_token(str(uuid.uuid4())), "wrong-secret-with-at-least-32-bytes-too"
+        )
 
 
 async def test_get_current_user_valid():
