@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     app_name: str = "PuntualMed"
     api_v1_prefix: str = "/api/v1"
     database_url: str  # requerido: si falta, la app no arranca
+    supabase_jwt_secret: str  # secret HS256 de Supabase para verificar JWTs
 
     @field_validator("database_url")
     @classmethod
@@ -26,6 +27,14 @@ class Settings(BaseSettings):
             raise ValueError(
                 f"DATABASE_URL debe usar el driver async: {_ASYNC_DRIVER_PREFIX}..."
             )
+        return value
+
+    @field_validator("supabase_jwt_secret")
+    @classmethod
+    def validate_secret_not_empty(cls, value: str) -> str:
+        # Un secret vacio no permite verificar firmas
+        if not value.strip():
+            raise ValueError("SUPABASE_JWT_SECRET no puede estar vacio")
         return value
 
 

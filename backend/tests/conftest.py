@@ -9,6 +9,7 @@ from httpx import ASGITransport, AsyncClient
 os.environ.setdefault(
     "DATABASE_URL", "postgresql+asyncpg://test:test@localhost:5432/test"
 )
+os.environ.setdefault("SUPABASE_JWT_SECRET", "test-jwt-secret")
 
 
 @pytest.fixture
