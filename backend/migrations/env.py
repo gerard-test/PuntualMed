@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from app.core.config import get_settings
 from app.db.base import Base
+from app.meds.models import Medication, MedicationSchedule  # noqa: F401
 from app.users.models import Profile  # noqa: F401
 
 config = context.config

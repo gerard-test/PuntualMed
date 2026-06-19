@@ -11,6 +11,10 @@ os.environ.setdefault(
 )
 os.environ.setdefault("SUPABASE_JWT_SECRET", "test-jwt-secret-with-at-least-32-bytes")
 
+# Registra todos los modelos en Base.metadata para que las FK se resuelvan entre slices
+from app.meds.models import Medication, MedicationSchedule  # noqa: F401
+from app.users.models import Profile  # noqa: F401
+
 
 @pytest.fixture
 def app():
