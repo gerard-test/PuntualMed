@@ -7,6 +7,24 @@ on:
 jobs:
   backend:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/postgres
+      TEST_DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/postgres
+      SUPABASE_JWT_SECRET: test-jwt-secret-for-ci-only-not-real
     defaults:
       run:
         working-directory: backend
@@ -21,6 +39,10 @@ jobs:
 
       - name: Install dependencies
         run: uv sync --dev
+
+      - name: Apply migrations
+        working-directory: backend
+        run: uv run alembic upgrade head
 
       - name: Lint
         run: uv run ruff check .
