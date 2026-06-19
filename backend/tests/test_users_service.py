@@ -48,3 +48,18 @@ async def test_update_profile_sets_fields():
     )
     assert updated.full_name == "Iris"
     assert updated.expo_push_token == "ExpoToken[abc]"
+
+
+async def test_update_profile_does_not_clobber_unset_fields():
+    # Un campo None en el update no debe pisar un valor existente
+    repo = _FakeRepo()
+    user_id = uuid.uuid4()
+    await repo.add(
+        Profile(id=user_id, full_name="Iris", expo_push_token="ExpoToken[abc]")
+    )
+    service = UserService(repo)
+    updated = await service.update_profile(
+        user_id, ProfileUpdate(full_name="Iris Evinan")
+    )
+    assert updated.full_name == "Iris Evinan"
+    assert updated.expo_push_token == "ExpoToken[abc]"
