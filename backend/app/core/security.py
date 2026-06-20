@@ -1,5 +1,6 @@
 import uuid
 from dataclasses import dataclass
+from functools import lru_cache
 
 import jwt
 from fastapi import Depends, HTTPException, status
@@ -7,7 +8,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.core.config import get_settings
 
-_ALGORITHM = "HS256"
+_ALGORITHM = "ES256"
 _AUDIENCE = "authenticated"
 _bearer = HTTPBearer(auto_error=False)
 
@@ -19,10 +20,21 @@ class CurrentUser:
     email: str | None
 
 
-def decode_supabase_token(token: str, secret: str) -> dict:
-    # Verifica firma, expiracion y audience del token de Supabase
+@lru_cache
+def get_jwks_client() -> jwt.PyJWKClient:
+    # Cliente JWKS cacheado: descarga y cachea las llaves publicas de Supabase.
+    return jwt.PyJWKClient(get_settings().supabase_jwks_url)
+
+
+def decode_supabase_token(token: str, jwk_client: jwt.PyJWKClient, issuer: str) -> dict:
+    # Verifica firma ES256 (llave publica elegida por el `kid`), audience e issuer.
+    signing_key = jwk_client.get_signing_key_from_jwt(token)
     return jwt.decode(
-        token, secret, algorithms=[_ALGORITHM], audience=_AUDIENCE
+        token,
+        signing_key.key,
+        algorithms=[_ALGORITHM],
+        audience=_AUDIENCE,
+        issuer=issuer,
     )
 
 
@@ -37,7 +49,7 @@ async def get_current_user(
     settings = get_settings()
     try:
         payload = decode_supabase_token(
-            credentials.credentials, settings.supabase_jwt_secret
+            credentials.credentials, get_jwks_client(), settings.supabase_issuer
         )
     except jwt.PyJWTError as err:
         raise HTTPException(

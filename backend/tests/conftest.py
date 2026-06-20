@@ -9,7 +9,6 @@ from httpx import ASGITransport, AsyncClient
 os.environ.setdefault(
     "DATABASE_URL", "postgresql+asyncpg://test:test@localhost:5432/test"
 )
-os.environ.setdefault("SUPABASE_JWT_SECRET", "test-jwt-secret-with-at-least-32-bytes")
 os.environ.setdefault("SUPABASE_URL", "https://test.supabase.co")
 
 # Registra todos los modelos en Base.metadata para que las FK se resuelvan entre slices

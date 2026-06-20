@@ -15,7 +15,6 @@ class Settings(BaseSettings):
     app_name: str = "PuntualMed"
     api_v1_prefix: str = "/api/v1"
     database_url: str  # requerido: si falta, la app no arranca
-    supabase_jwt_secret: str  # secret HS256 de Supabase para verificar JWTs
     supabase_url: str  # URL del proyecto Supabase, ej. https://<ref>.supabase.co
     app_timezone: str = "America/Guayaquil"  # zona para programar tomas (UTC-5)
     zhipu_api_key: str | None = None  # key de GLM/Zhipu; opcional hasta usar el LLM real
@@ -30,14 +29,6 @@ class Settings(BaseSettings):
             raise ValueError(
                 f"DATABASE_URL debe usar el driver async: {_ASYNC_DRIVER_PREFIX}..."
             )
-        return value
-
-    @field_validator("supabase_jwt_secret")
-    @classmethod
-    def validate_secret_not_empty(cls, value: str) -> str:
-        # Un secret vacio no permite verificar firmas
-        if not value.strip():
-            raise ValueError("SUPABASE_JWT_SECRET no puede estar vacio")
         return value
 
     @field_validator("supabase_url")
