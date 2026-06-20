@@ -1,7 +1,8 @@
 import "../global.css";
 import { useEffect } from "react";
-import { Stack } from "expo-router";
+import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import { View } from "react-native";
 import {
   Inter_400Regular,
   Inter_500Medium,
@@ -9,11 +10,33 @@ import {
   Inter_700Bold,
   useFonts,
 } from "@expo-google-fonts/inter";
+import { AuthProvider, nextRoute, useAuth } from "@/lib/auth";
 
 SplashScreen.preventAutoHideAsync();
 
+function RootNavigator() {
+  const { session, loading } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+
+  useEffect(() => {
+    const target = nextRoute({
+      hasSession: !!session,
+      loading,
+      inAuth: segments[0] === "(auth)",
+      inApp: segments[0] === "(tabs)",
+    });
+    if (target) router.replace(target);
+  }, [session, loading, segments, router]);
+
+  if (loading) {
+    return <View className="flex-1 bg-primary" />;
+  }
+  return <Stack screenOptions={{ headerShown: false }} />;
+}
+
 export default function RootLayout() {
-  const [loaded] = useFonts({
+  const [fontsLoaded] = useFonts({
     Inter_400Regular,
     Inter_500Medium,
     Inter_600SemiBold,
@@ -21,14 +44,14 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
+    if (fontsLoaded) SplashScreen.hideAsync();
+  }, [fontsLoaded]);
 
-  if (!loaded) {
-    return null;
-  }
+  if (!fontsLoaded) return null;
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <AuthProvider>
+      <RootNavigator />
+    </AuthProvider>
+  );
 }
