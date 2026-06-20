@@ -8,7 +8,7 @@ import { useAsync } from "@/lib/use-async";
 import { confirmIntake, listIntakes } from "@/lib/intakes-api";
 import { listMedications } from "@/lib/meds-api";
 import { fetchMe } from "@/lib/users-api";
-import { adherence, nextPendingIntake, todaysMeds } from "@/lib/home-data";
+import { adherence, formatTime, nextPendingIntake, todaysMeds } from "@/lib/home-data";
 
 function isoDate(offsetDays: number): string {
   const d = new Date();
@@ -62,6 +62,7 @@ export default function Home() {
         <Card>
           <Text className="font-sans text-muted">Proxima toma</Text>
           <Text className="text-lg font-bold text-primary">{upcomingMed.name} {upcomingMed.dose}</Text>
+          <Text className="font-sans text-muted">{formatTime(upcoming.scheduled_at)}</Text>
           <Button label="Confirmar" onPress={() => onConfirm(upcoming.id)} />
         </Card>
       ) : null}

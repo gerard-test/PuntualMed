@@ -5,7 +5,7 @@ import { useAsync } from "@/lib/use-async";
 import { listIntakes } from "@/lib/intakes-api";
 import { listMedications } from "@/lib/meds-api";
 import { listSymptoms } from "@/lib/symptoms-api";
-import { dayDetail, dayKey, dayStatuses, daysInMonth } from "@/lib/calendar-data";
+import { dayDetail, dayStatuses, daysInMonth } from "@/lib/calendar-data";
 
 const MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
