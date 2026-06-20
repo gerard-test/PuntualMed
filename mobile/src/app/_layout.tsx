@@ -15,7 +15,7 @@ import { AuthProvider, nextRoute, useAuth } from "@/lib/auth";
 SplashScreen.preventAutoHideAsync();
 
 function RootNavigator() {
-  const { session, loading } = useAuth();
+  const { session, loading, recovery } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
@@ -28,6 +28,10 @@ function RootNavigator() {
     });
     if (target) router.replace(target);
   }, [session, loading, segments, router]);
+
+  useEffect(() => {
+    if (recovery) router.replace("/update-password");
+  }, [recovery, router]);
 
   if (loading) {
     return <View className="flex-1 bg-primary" />;
