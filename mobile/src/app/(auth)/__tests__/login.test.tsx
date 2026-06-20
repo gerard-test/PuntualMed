@@ -10,12 +10,12 @@ describe("Login screen", () => {
   it("renders the brand name and the sign-in action", () => {
     render(<Login />);
     expect(screen.getByText("PuntualMed")).toBeOnTheScreen();
-    expect(screen.getByText("Iniciar sesion")).toBeOnTheScreen();
+    expect(screen.getByText("Iniciar sesión")).toBeOnTheScreen();
   });
 
   it("renders email and password fields", () => {
     render(<Login />);
-    expect(screen.getByPlaceholderText("Correo electronico")).toBeOnTheScreen();
-    expect(screen.getByPlaceholderText("Contrasena")).toBeOnTheScreen();
+    expect(screen.getByPlaceholderText("Correo electrónico")).toBeOnTheScreen();
+    expect(screen.getByPlaceholderText("Contraseña")).toBeOnTheScreen();
   });
 });

@@ -90,7 +90,7 @@ export default function Calendar() {
 
       {detail ? (
         <Card className="gap-1">
-          <Text className="font-semibold text-primary">Dia {selected}</Text>
+          <Text className="font-semibold text-primary">Día {selected}</Text>
           {detail.meds.length === 0 && detail.symptoms.length === 0 ? (
             <Text className="font-sans text-muted">Sin registros</Text>
           ) : null}
@@ -98,7 +98,7 @@ export default function Calendar() {
             <Text key={m.id} className="font-sans text-primary">{m.time} - {m.name} ({m.status})</Text>
           ))}
           {detail.symptoms.map((s) => (
-            <Text key={s.id} className="font-sans text-warning">Sintoma: {s.description}</Text>
+            <Text key={s.id} className="font-sans text-warning">Síntoma: {s.description}</Text>
           ))}
         </Card>
       ) : null}

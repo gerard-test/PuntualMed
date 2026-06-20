@@ -9,7 +9,7 @@ jest.mock("@/lib/ai-api", () => ({
 describe("Assistant", () => {
   it("analyzes and shows the AI response", async () => {
     render(<Assistant />);
-    fireEvent.press(screen.getByText("Analizar mis sintomas"));
+    fireEvent.press(screen.getByText("Analizar mis síntomas"));
     await waitFor(() =>
       expect(screen.getByText(/deshidratacion/)).toBeOnTheScreen(),
     );

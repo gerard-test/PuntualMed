@@ -16,7 +16,7 @@ export default function Register() {
 
   async function onSubmit() {
     if (password !== confirm) {
-      setError("Las contrasenas no coinciden");
+      setError("Las contraseñas no coinciden");
       return;
     }
     setLoading(true);
@@ -34,7 +34,7 @@ export default function Register() {
         <Text className="text-center font-sans text-muted">
           Te enviamos un enlace a {email}. Abrelo para activar tu cuenta.
         </Text>
-        <Link href="/login" className="text-center font-sans text-sky">Volver al inicio de sesion</Link>
+        <Link href="/login" className="text-center font-sans text-sky">Volver al inicio de sesión</Link>
       </View>
     );
   }
@@ -43,9 +43,9 @@ export default function Register() {
     <View className="flex-1 justify-center gap-3 bg-white px-6">
       <Text className="mb-2 text-center text-2xl font-bold text-primary">Crear cuenta</Text>
       <Input value={name} onChangeText={setName} placeholder="Nombre completo" />
-      <Input value={email} onChangeText={setEmail} placeholder="Correo electronico" autoCapitalize="none" keyboardType="email-address" />
-      <Input value={password} onChangeText={setPassword} placeholder="Contrasena" secureTextEntry />
-      <Input value={confirm} onChangeText={setConfirm} placeholder="Confirmar contrasena" secureTextEntry />
+      <Input value={email} onChangeText={setEmail} placeholder="Correo electrónico" autoCapitalize="none" keyboardType="email-address" />
+      <Input value={password} onChangeText={setPassword} placeholder="Contraseña" secureTextEntry />
+      <Input value={confirm} onChangeText={setConfirm} placeholder="Confirmar contraseña" secureTextEntry />
       {error ? <Text className="text-sm text-danger">{error}</Text> : null}
       <Button label={loading ? "Creando..." : "Crear cuenta"} onPress={onSubmit} disabled={loading} />
       <Link href="/login" className="text-center font-sans text-sky">Ya tengo cuenta</Link>

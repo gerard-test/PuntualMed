@@ -25,16 +25,16 @@ export default function ForgotPassword() {
       <Text className="text-center text-2xl font-bold text-primary">Recupera tu acceso</Text>
       {sent ? (
         <Text className="text-center font-sans text-muted">
-          Si el correo existe, te enviamos un enlace para restablecer tu contrasena.
+          Si el correo existe, te enviamos un enlace para restablecer tu contraseña.
         </Text>
       ) : (
         <>
-          <Input value={email} onChangeText={setEmail} placeholder="Correo electronico" autoCapitalize="none" keyboardType="email-address" />
+          <Input value={email} onChangeText={setEmail} placeholder="Correo electrónico" autoCapitalize="none" keyboardType="email-address" />
           {error ? <Text className="text-sm text-danger">{error}</Text> : null}
           <Button label={loading ? "Enviando..." : "Enviar enlace"} onPress={onSubmit} disabled={loading} />
         </>
       )}
-      <Link href="/login" className="text-center font-sans text-sky">Volver al inicio de sesion</Link>
+      <Link href="/login" className="text-center font-sans text-sky">Volver al inicio de sesión</Link>
     </View>
   );
 }

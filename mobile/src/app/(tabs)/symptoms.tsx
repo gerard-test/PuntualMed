@@ -28,7 +28,7 @@ export default function Symptoms() {
   return (
     <ScrollView className="flex-1 bg-surface" contentContainerClassName="gap-3 p-4">
       <View className="flex-row items-center justify-between">
-        <Text className="text-xl font-bold text-primary">Sintomas</Text>
+        <Text className="text-xl font-bold text-primary">Síntomas</Text>
         <Pressable accessibilityRole="button" onPress={() => router.push("/register-symptom")}>
           <Text className="text-2xl font-bold text-sky">+</Text>
         </Pressable>
@@ -37,7 +37,7 @@ export default function Symptoms() {
       {loading ? <Text className="text-center font-sans text-muted">Cargando...</Text> : null}
       {error ? <Text className="text-center text-danger">No se pudo cargar</Text> : null}
       {data && data.symptoms.length === 0 ? (
-        <Text className="text-center font-sans text-muted">Aun no registras sintomas</Text>
+        <Text className="text-center font-sans text-muted">Aún no registras síntomas</Text>
       ) : null}
 
       {(data?.symptoms ?? []).map((s) => (

@@ -34,7 +34,7 @@ export default function MedicationDetail() {
           <Card className="gap-1">
             <Text className="font-sans text-muted">Inicio: {med.start_date}</Text>
             <Text className="font-sans text-muted">Fin: {med.end_date}</Text>
-            <Text className="font-sans text-muted">Duracion: {med.duration_days} dias</Text>
+            <Text className="font-sans text-muted">Duración: {med.duration_days} días</Text>
             {med.notes ? <Text className="font-sans text-muted">Notas: {med.notes}</Text> : null}
           </Card>
           <Card className="gap-1">

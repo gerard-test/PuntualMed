@@ -37,8 +37,8 @@ export default function RegisterSymptom() {
 
   return (
     <ScrollView className="flex-1 bg-white" contentContainerClassName="gap-3 p-4">
-      <Text className="text-xl font-bold text-primary">Nuevo sintoma</Text>
-      <Input value={description} onChangeText={setDescription} placeholder="Describe el sintoma" />
+      <Text className="text-xl font-bold text-primary">Nuevo síntoma</Text>
+      <Input value={description} onChangeText={setDescription} placeholder="Describe el síntoma" />
 
       <Text className="font-semibold text-primary">Severidad</Text>
       <View className="flex-row gap-2">

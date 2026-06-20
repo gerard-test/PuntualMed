@@ -26,12 +26,12 @@ export default function Login() {
       <Text className="mb-4 text-center font-sans text-muted">
         Tu tratamiento, guiado por inteligencia
       </Text>
-      <Input value={email} onChangeText={setEmail} placeholder="Correo electronico" autoCapitalize="none" keyboardType="email-address" />
-      <Input value={password} onChangeText={setPassword} placeholder="Contrasena" secureTextEntry />
+      <Input value={email} onChangeText={setEmail} placeholder="Correo electrónico" autoCapitalize="none" keyboardType="email-address" />
+      <Input value={password} onChangeText={setPassword} placeholder="Contraseña" secureTextEntry />
       {error ? <Text className="text-sm text-danger">{error}</Text> : null}
-      <Button label={loading ? "Ingresando..." : "Iniciar sesion"} onPress={onSubmit} disabled={loading} />
+      <Button label={loading ? "Ingresando..." : "Iniciar sesión"} onPress={onSubmit} disabled={loading} />
       <Link href="/forgot-password" className="text-center font-sans text-sky">
-        Olvide mi contrasena
+        Olvidé mi contraseña
       </Link>
       <Link href="/register" className="text-center font-sans text-primary">
         Crear cuenta

@@ -27,7 +27,7 @@ export default function Assistant() {
       <Text className="text-xl font-bold text-primary">Asistente IA</Text>
       {messages.length === 0 && !loading ? (
         <Text className="text-center font-sans text-muted">
-          Analiza tus sintomas registrados con la IA.
+          Analiza tus síntomas registrados con la IA.
         </Text>
       ) : null}
       {messages.map((m) => (
@@ -37,7 +37,7 @@ export default function Assistant() {
       ))}
       {loading ? <Text className="text-center font-sans text-muted">Analizando...</Text> : null}
       {error ? <Text className="text-center text-danger">{error}</Text> : null}
-      <Button label={loading ? "Analizando..." : "Analizar mis sintomas"} onPress={onAnalyze} disabled={loading} />
+      <Button label={loading ? "Analizando..." : "Analizar mis síntomas"} onPress={onAnalyze} disabled={loading} />
     </ScrollView>
   );
 }

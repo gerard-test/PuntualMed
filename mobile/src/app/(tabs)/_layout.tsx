@@ -41,7 +41,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="symptoms"
         options={{
-          title: "Sintomas",
+          title: "Síntomas",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="pulse-outline" color={color} size={size} />
           ),

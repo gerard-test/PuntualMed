@@ -66,7 +66,7 @@ export default function Home() {
 
       {upcoming && upcomingMed ? (
         <Card>
-          <Text className="font-sans text-muted">Proxima toma</Text>
+          <Text className="font-sans text-muted">Próxima toma</Text>
           <Text className="text-lg font-bold text-primary">{upcomingMed.name} {upcomingMed.dose}</Text>
           <Text className="font-sans text-muted">{formatTime(upcoming.scheduled_at)}</Text>
           <Button label="Confirmar" onPress={() => onConfirm(upcoming.id)} />
@@ -75,7 +75,7 @@ export default function Home() {
 
       {stats ? (
         <Card>
-          <Text className="font-sans text-muted">Adherencia (7 dias)</Text>
+          <Text className="font-sans text-muted">Adherencia (7 días)</Text>
           <Text className="text-lg font-bold text-success">{stats.percent}%</Text>
           <Text className="font-sans text-muted">{stats.taken} de {stats.total} tomas</Text>
         </Card>

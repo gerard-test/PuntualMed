@@ -28,7 +28,7 @@ export default function Medications() {
       {loading ? <Text className="text-center font-sans text-muted">Cargando...</Text> : null}
       {error ? <Text className="text-center text-danger">No se pudo cargar</Text> : null}
       {data && data.length === 0 ? (
-        <Text className="text-center font-sans text-muted">Aun no tienes medicamentos</Text>
+        <Text className="text-center font-sans text-muted">Aún no tienes medicamentos</Text>
       ) : null}
 
       {(data ?? []).map((med) => (

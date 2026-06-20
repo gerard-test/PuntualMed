@@ -22,10 +22,10 @@ export default function UpdatePassword() {
 
   return (
     <View className="flex-1 justify-center gap-4 bg-white px-6">
-      <Text className="text-center text-2xl font-bold text-primary">Nueva contrasena</Text>
-      <Input value={password} onChangeText={setPassword} placeholder="Nueva contrasena" secureTextEntry />
+      <Text className="text-center text-2xl font-bold text-primary">Nueva contraseña</Text>
+      <Input value={password} onChangeText={setPassword} placeholder="Nueva contraseña" secureTextEntry />
       {error ? <Text className="text-sm text-danger">{error}</Text> : null}
-      <Button label={loading ? "Guardando..." : "Guardar contrasena"} onPress={onSubmit} disabled={loading} />
+      <Button label={loading ? "Guardando..." : "Guardar contraseña"} onPress={onSubmit} disabled={loading} />
     </View>
   );
 }

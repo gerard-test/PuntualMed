@@ -20,6 +20,6 @@ describe("Profile screen", () => {
 
   it("renders the logout action", () => {
     render(<Profile />);
-    expect(screen.getByText("Cerrar sesion")).toBeOnTheScreen();
+    expect(screen.getByText("Cerrar sesión")).toBeOnTheScreen();
   });
 });

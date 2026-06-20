@@ -27,7 +27,7 @@ export default function Profile() {
 
   async function savePassword() {
     const result = await updatePassword(password);
-    setNotice(result.error ?? "Contrasena actualizada");
+    setNotice(result.error ?? "Contraseña actualizada");
     if (!result.error) setPassword("");
   }
 
@@ -43,15 +43,15 @@ export default function Profile() {
       </Card>
 
       <Card className="gap-2">
-        <Text className="font-semibold text-primary">Cambiar contrasena</Text>
-        <Input value={password} onChangeText={setPassword} placeholder="Nueva contrasena" secureTextEntry />
-        <Button label="Guardar contrasena" variant="secondary" onPress={savePassword} />
+        <Text className="font-semibold text-primary">Cambiar contraseña</Text>
+        <Input value={password} onChangeText={setPassword} placeholder="Nueva contraseña" secureTextEntry />
+        <Button label="Guardar contraseña" variant="secondary" onPress={savePassword} />
       </Card>
 
       {notice ? <Text className="text-center font-sans text-muted">{notice}</Text> : null}
 
       <View className="mt-4">
-        <Button label="Cerrar sesion" variant="secondary" onPress={() => signOut()} />
+        <Button label="Cerrar sesión" variant="secondary" onPress={() => signOut()} />
       </View>
     </ScrollView>
   );
