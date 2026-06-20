@@ -34,14 +34,17 @@ describe("daysInMonth", () => {
 });
 
 describe("dayStatuses", () => {
-  it("aggregates taken/missed/symptom flags per local day", () => {
+  it("aggregates taken/missed/symptom/pending flags per local day", () => {
     const result = dayStatuses(
-      [intake({ scheduled_at: "2026-06-20T08:00:00Z", status: "taken" })],
+      [
+        intake({ scheduled_at: "2026-06-20T08:00:00Z", status: "taken" }),
+        intake({ scheduled_at: "2026-06-20T20:00:00Z", status: "pending" }),
+      ],
       [symptom({ occurred_at: "2026-06-20T10:00:00Z" })],
       now,
     );
     const key = dayKey("2026-06-20T08:00:00Z");
-    expect(result[key]).toEqual({ taken: true, missed: false, symptom: true });
+    expect(result[key]).toEqual({ taken: true, missed: false, symptom: true, pending: true });
   });
 });
 

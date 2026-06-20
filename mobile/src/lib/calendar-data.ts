@@ -3,7 +3,7 @@ import type { Intake } from "@/lib/intakes-api";
 import type { Medication } from "@/lib/meds-api";
 import type { Symptom } from "@/lib/symptoms-api";
 
-type DayFlags = { taken: boolean; missed: boolean; symptom: boolean };
+type DayFlags = { taken: boolean; missed: boolean; symptom: boolean; pending: boolean };
 type EffectiveStatus = "taken" | "missed" | "pending";
 
 // Clave de dia local YYYY-MM-DD.
@@ -33,12 +33,13 @@ export function dayStatuses(
 ): Record<string, DayFlags> {
   const map: Record<string, DayFlags> = {};
   const ensure = (key: string) =>
-    (map[key] ??= { taken: false, missed: false, symptom: false });
+    (map[key] ??= { taken: false, missed: false, symptom: false, pending: false });
   for (const i of intakes) {
     const flags = ensure(dayKey(i.scheduled_at));
     const status = effectiveStatus(i, now);
     if (status === "taken") flags.taken = true;
     if (status === "missed") flags.missed = true;
+    if (status === "pending") flags.pending = true;
   }
   for (const s of symptoms) ensure(dayKey(s.occurred_at)).symptom = true;
   return map;

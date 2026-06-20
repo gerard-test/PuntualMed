@@ -60,22 +60,32 @@ export default function Calendar() {
         {daysInMonth(year, month0).map((d) => {
           const key = `${year}-${pad(month0 + 1)}-${pad(d)}`;
           const f = statuses[key];
+          const todayKey = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+          const isToday = key === todayKey;
           return (
             <Pressable
               key={key}
               accessibilityRole="button"
               onPress={() => setSelected(key)}
-              className="h-12 w-[14.28%] items-center justify-center"
+              className={`h-12 w-[14.28%] items-center justify-center${isToday ? " border border-primary rounded" : ""}`}
             >
               <Text className="font-sans text-primary">{d}</Text>
               <View className="flex-row gap-0.5">
                 {f?.taken ? <View className="h-1.5 w-1.5 rounded-full bg-success" /> : null}
                 {f?.missed ? <View className="h-1.5 w-1.5 rounded-full bg-danger" /> : null}
+                {f?.pending ? <View className="h-1.5 w-1.5 rounded-full bg-sky" /> : null}
                 {f?.symptom ? <View className="h-1.5 w-1.5 rounded-full bg-warning" /> : null}
               </View>
             </Pressable>
           );
         })}
+      </View>
+
+      <View className="flex-row flex-wrap gap-3">
+        <Text className="font-sans text-xs text-success">● Tomada</Text>
+        <Text className="font-sans text-xs text-danger">● Vencida</Text>
+        <Text className="font-sans text-xs text-sky">● Pendiente</Text>
+        <Text className="font-sans text-xs text-warning">● Síntoma</Text>
       </View>
 
       {detail ? (
