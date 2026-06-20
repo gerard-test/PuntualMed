@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { useAuth } from "@/lib/auth";
@@ -30,6 +30,12 @@ export default function Home() {
   const { session } = useAuth();
   const { data, error, loading, reload } = useAsync(loadHome);
   const greetName = data?.me.full_name ?? session?.user?.email ?? "";
+
+  useFocusEffect(
+    useCallback(() => {
+      reload();
+    }, [reload]),
+  );
 
   const now = new Date();
   const upcoming = data ? nextPendingIntake(data.intakes, now) : null;

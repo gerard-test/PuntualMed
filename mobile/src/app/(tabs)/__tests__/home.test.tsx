@@ -5,7 +5,7 @@ import { confirmIntake } from "@/lib/intakes-api";
 // Fecha estatica futura (no relativa): el factory de jest.mock se hoistea sobre las
 // variables del modulo, asi que el intake pendiente "siempre futuro" hace el test
 // independiente de la fecha del sistema.
-jest.mock("expo-router", () => ({ useRouter: () => ({ push: jest.fn() }) }));
+jest.mock("expo-router", () => ({ useRouter: () => ({ push: jest.fn() }), useFocusEffect: jest.fn() }));
 jest.mock("@/lib/auth", () => ({ useAuth: () => ({ session: { user: { email: "t@e.com" } } }) }));
 jest.mock("@/lib/intakes-api", () => ({
   listIntakes: jest.fn().mockResolvedValue([
