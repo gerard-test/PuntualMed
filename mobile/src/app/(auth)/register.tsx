@@ -32,7 +32,7 @@ export default function Register() {
       <View className="flex-1 justify-center gap-4 bg-white px-6">
         <Text className="text-center text-2xl font-bold text-primary">Confirma tu correo</Text>
         <Text className="text-center font-sans text-muted">
-          Te enviamos un enlace a {email}. Abrelo para activar tu cuenta.
+          Te enviamos un enlace a {email}. Ábrelo para activar tu cuenta.
         </Text>
         <Link href="/login" className="text-center font-sans text-sky">Volver al inicio de sesión</Link>
       </View>
