@@ -3,8 +3,34 @@ import type { Intake } from "../intakes-api";
 import type { Medication } from "../meds-api";
 
 const meds: Medication[] = [
-  { id: "m1", name: "Losartan", dose: "50mg" },
-  { id: "m2", name: "Metformina", dose: "500mg" },
+  {
+    id: "m1",
+    name: "Losartan",
+    dose: "50mg",
+    frequency_hours: 24,
+    start_date: "2026-06-01",
+    duration_days: 30,
+    end_date: "2026-07-01",
+    notes: null,
+    source: "doctor",
+    active: true,
+    created_at: "2026-06-01T00:00:00Z",
+    schedules: [{ id: "s1", time_of_day: "09:00" }],
+  },
+  {
+    id: "m2",
+    name: "Metformina",
+    dose: "500mg",
+    frequency_hours: 12,
+    start_date: "2026-06-01",
+    duration_days: 30,
+    end_date: "2026-07-01",
+    notes: null,
+    source: "doctor",
+    active: true,
+    created_at: "2026-06-01T00:00:00Z",
+    schedules: [{ id: "s2", time_of_day: "08:00" }],
+  },
 ];
 
 function intake(over: Partial<Intake>): Intake {
