@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlalchemy import DateTime, ForeignKey, String, Uuid, func
 from sqlalchemy.orm import Mapped, mapped_column
@@ -23,3 +23,10 @@ class Symptom(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+
+    def __init__(self, **kwargs: object) -> None:
+        # Provee created_at en construccion directa (e.g. tests sin DB).
+        # server_default lo sobreescribe en la BD real al hacer INSERT.
+        if "created_at" not in kwargs:
+            kwargs["created_at"] = datetime.now(UTC)
+        super().__init__(**kwargs)
