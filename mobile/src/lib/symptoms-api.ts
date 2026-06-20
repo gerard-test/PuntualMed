@@ -12,3 +12,17 @@ export type Symptom = {
 export async function listSymptoms(): Promise<Symptom[]> {
   return apiRequest<Symptom[]>("/api/v1/symptoms", { token: getAccessToken });
 }
+
+export type SymptomInput = {
+  description: string;
+  severity?: string | null;
+  medication_id?: string | null;
+};
+
+export async function createSymptom(input: SymptomInput): Promise<Symptom> {
+  return apiRequest<Symptom>("/api/v1/symptoms", {
+    method: "POST",
+    body: input,
+    token: getAccessToken,
+  });
+}
