@@ -1,4 +1,4 @@
-import { dayDetail, dayKey, dayStatuses, daysInMonth, effectiveStatus } from "../calendar-data";
+import { dayDetail, dayKey, dayStatuses, daysInMonth, effectiveStatus, statusIcon } from "../calendar-data";
 import type { Intake } from "../intakes-api";
 import type { Medication } from "../meds-api";
 import type { Symptom } from "../symptoms-api";
@@ -45,6 +45,14 @@ describe("dayStatuses", () => {
     );
     const key = dayKey("2026-06-20T08:00:00Z");
     expect(result[key]).toEqual({ taken: true, missed: false, symptom: true, pending: true });
+  });
+});
+
+describe("statusIcon", () => {
+  it("maps statuses to glyphs", () => {
+    expect(statusIcon("taken")).toBe("✓");
+    expect(statusIcon("missed")).toBe("✗");
+    expect(statusIcon("pending")).toBe("•");
   });
 });
 

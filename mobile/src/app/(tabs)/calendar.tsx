@@ -5,7 +5,13 @@ import { useAsync } from "@/lib/use-async";
 import { listIntakes } from "@/lib/intakes-api";
 import { listMedications } from "@/lib/meds-api";
 import { listSymptoms } from "@/lib/symptoms-api";
-import { dayDetail, dayStatuses, daysInMonth } from "@/lib/calendar-data";
+import { dayDetail, dayStatuses, daysInMonth, statusIcon } from "@/lib/calendar-data";
+
+function statusColor(status: "taken" | "missed" | "pending"): string {
+  if (status === "taken") return "font-sans text-success";
+  if (status === "missed") return "font-sans text-danger";
+  return "font-sans text-sky";
+}
 
 const MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
@@ -62,14 +68,20 @@ export default function Calendar() {
           const f = statuses[key];
           const todayKey = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
           const isToday = key === todayKey;
+          const isSelected = key === selected;
+          const cellClass = isSelected
+            ? "h-12 w-[14.28%] items-center justify-center bg-primary rounded"
+            : isToday
+              ? "h-12 w-[14.28%] items-center justify-center border border-primary rounded"
+              : "h-12 w-[14.28%] items-center justify-center";
           return (
             <Pressable
               key={key}
               accessibilityRole="button"
               onPress={() => setSelected(key)}
-              className={`h-12 w-[14.28%] items-center justify-center${isToday ? " border border-primary rounded" : ""}`}
+              className={cellClass}
             >
-              <Text className="font-sans text-primary">{d}</Text>
+              <Text className={isSelected ? "font-sans text-white" : "font-sans text-primary"}>{d}</Text>
               <View className="flex-row gap-0.5">
                 {f?.taken ? <View className="h-1.5 w-1.5 rounded-full bg-success" /> : null}
                 {f?.missed ? <View className="h-1.5 w-1.5 rounded-full bg-danger" /> : null}
@@ -90,15 +102,21 @@ export default function Calendar() {
 
       {detail ? (
         <Card className="gap-1">
-          <Text className="font-semibold text-primary">Día {selected}</Text>
+          <Text className="font-semibold text-primary">Viendo: {selected}</Text>
           {detail.meds.length === 0 && detail.symptoms.length === 0 ? (
             <Text className="font-sans text-muted">Sin registros</Text>
           ) : null}
           {detail.meds.map((m) => (
-            <Text key={m.id} className="font-sans text-primary">{m.time} - {m.name} ({m.status})</Text>
+            <View key={m.id} className="flex-row items-center gap-1">
+              <Text className={statusColor(m.status)}>{statusIcon(m.status)}</Text>
+              <Text className="font-sans text-primary">{m.time} - {m.name}</Text>
+            </View>
           ))}
           {detail.symptoms.map((s) => (
-            <Text key={s.id} className="font-sans text-warning">Síntoma: {s.description}</Text>
+            <View key={s.id} className="flex-row items-center gap-1">
+              <Text className="font-sans text-warning">!</Text>
+              <Text className="font-sans text-warning">Síntoma: {s.description}</Text>
+            </View>
           ))}
         </Card>
       ) : null}

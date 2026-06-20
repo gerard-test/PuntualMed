@@ -45,6 +45,12 @@ export function dayStatuses(
   return map;
 }
 
+export function statusIcon(status: "taken" | "missed" | "pending"): string {
+  if (status === "taken") return "✓";
+  if (status === "missed") return "✗";
+  return "•";
+}
+
 export function dayDetail(
   intakes: Intake[],
   meds: Medication[],
