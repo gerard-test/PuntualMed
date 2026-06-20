@@ -1,7 +1,7 @@
 import httpx
 import pytest
 
-from app.ai.provider import DISCLAIMER, GLMProvider
+from app.ai.provider import GLMProvider
 
 
 async def test_glm_provider_without_key_raises():
@@ -10,7 +10,7 @@ async def test_glm_provider_without_key_raises():
         await provider.analyze_symptoms([], [])
 
 
-async def test_glm_provider_parses_response_and_sends_disclaimer_prompt():
+async def test_glm_provider_sends_model_and_parses_response():
     captured = {}
 
     def handler(request: httpx.Request) -> httpx.Response:
@@ -29,9 +29,9 @@ async def test_glm_provider_parses_response_and_sends_disclaimer_prompt():
 
     assert result == "Posible causa: deshidratacion."
     assert captured["auth"] == "Bearer test-key"
-    # el system prompt instruye a incluir el disclaimer y se manda el modelo de texto
-    assert DISCLAIMER in captured["body"]
-    assert "glm-4-flash" in captured["body"]
+    # el tono prudente lo fija el prompt; el disclaimer lo anade el service, no el LLM
+    assert "NUNCA diagnostiques" in captured["body"]
+    assert "glm-4.5-flash" in captured["body"]
 
 
 async def test_glm_provider_malformed_response_raises():

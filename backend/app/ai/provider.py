@@ -8,7 +8,7 @@ DISCLAIMER = (
 )
 
 _ENDPOINT = "https://open.bigmodel.cn/api/paas/v4/chat/completions"
-_MODEL = "glm-4-flash"
+_MODEL = "glm-4.5-flash"
 
 
 class AIProvider(Protocol):
@@ -30,10 +30,12 @@ class GLMProvider:
     async def analyze_symptoms(self, symptoms: list[dict], meds: list[dict]) -> str:
         if not self._api_key:
             raise RuntimeError("ZHIPU_API_KEY no configurada")
+        # El tono prudente lo fija este prompt; el disclaimer canonico lo anade
+        # el service (fuente unica), no el LLM, para evitar duplicados y variantes.
         system = (
             "Eres un asistente de salud. NUNCA diagnostiques de forma afirmativa. "
-            "Sugiere posibles causas en lenguaje prudente. "
-            f"Incluye SIEMPRE este disclaimer al final: {DISCLAIMER}"
+            "Sugiere posibles causas en lenguaje prudente e indica cuando acudir al medico. "
+            "NO agregues disclaimers ni avisos legales; la aplicacion los anade automaticamente."
         )
         user = (
             f"Sintomas registrados: {symptoms}\n"
