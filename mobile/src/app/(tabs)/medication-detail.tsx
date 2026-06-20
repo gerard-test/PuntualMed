@@ -12,10 +12,16 @@ export default function MedicationDetail() {
   const load = useCallback(() => getMedication(id), [id]);
   const { data: med, loading, error } = useAsync(load);
   const [confirming, setConfirming] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   async function onDelete() {
-    await deleteMedication(id);
-    router.back();
+    try {
+      await deleteMedication(id);
+      router.back();
+    } catch {
+      setDeleteError("No se pudo eliminar");
+      setConfirming(false);
+    }
   }
 
   return (
@@ -41,6 +47,7 @@ export default function MedicationDetail() {
               ))
             )}
           </Card>
+          {deleteError ? <Text className="text-center text-danger">{deleteError}</Text> : null}
           {confirming ? (
             <View className="gap-2">
               <Text className="text-center text-danger">Eliminar este medicamento?</Text>

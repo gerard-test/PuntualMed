@@ -29,6 +29,9 @@ describe("validateMedForm", () => {
   it("rejects a bad date", () => {
     expect(validateMedForm({ ...valid, startDate: "20-06-2026" })).toMatch(/fecha/i);
   });
+  it("rejects an empty times list", () => {
+    expect(validateMedForm({ ...valid, timesRaw: "" })).toMatch(/horario/i);
+  });
   it("rejects a malformed time", () => {
     expect(validateMedForm({ ...valid, timesRaw: "9am" })).toMatch(/horario/i);
   });

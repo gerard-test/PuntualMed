@@ -27,6 +27,7 @@ export function validateMedForm(form: MedForm): string | null {
   const days = Number(form.durationDays);
   if (!Number.isInteger(days) || days <= 0) return "La duracion debe ser un numero positivo";
   const times = parseTimes(form.timesRaw);
+  if (times.length === 0) return "Agrega al menos un horario";
   if (times.some((t) => !TIME_RE.test(t))) return "Cada horario debe ser HH:MM";
   return null;
 }
