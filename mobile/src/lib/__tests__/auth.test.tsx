@@ -14,22 +14,30 @@ import { nextRoute } from "../auth";
 
 describe("nextRoute", () => {
   it("returns null while loading", () => {
-    expect(nextRoute({ hasSession: false, loading: true, inAuth: false, inApp: false })).toBeNull();
+    expect(nextRoute({ hasSession: false, loading: true, recovery: false, inAuth: false, inApp: false })).toBeNull();
   });
 
   it("sends a logged-out user outside the auth group to /login", () => {
-    expect(nextRoute({ hasSession: false, loading: false, inAuth: false, inApp: true })).toBe("/login");
+    expect(nextRoute({ hasSession: false, loading: false, recovery: false, inAuth: false, inApp: true })).toBe("/login");
   });
 
   it("leaves a logged-out user already in the auth group alone", () => {
-    expect(nextRoute({ hasSession: false, loading: false, inAuth: true, inApp: false })).toBeNull();
+    expect(nextRoute({ hasSession: false, loading: false, recovery: false, inAuth: true, inApp: false })).toBeNull();
   });
 
   it("sends a logged-in user outside the app group to /home", () => {
-    expect(nextRoute({ hasSession: true, loading: false, inAuth: true, inApp: false })).toBe("/home");
+    expect(nextRoute({ hasSession: true, loading: false, recovery: false, inAuth: true, inApp: false })).toBe("/home");
   });
 
   it("leaves a logged-in user already in the app group alone", () => {
-    expect(nextRoute({ hasSession: true, loading: false, inAuth: false, inApp: true })).toBeNull();
+    expect(nextRoute({ hasSession: true, loading: false, recovery: false, inAuth: false, inApp: true })).toBeNull();
+  });
+
+  it("routes to /update-password when recovery is true regardless of current group", () => {
+    expect(nextRoute({ hasSession: true, loading: false, recovery: true, inAuth: false, inApp: true })).toBe("/update-password");
+  });
+
+  it("ignores recovery flag while loading", () => {
+    expect(nextRoute({ hasSession: true, loading: true, recovery: true, inAuth: false, inApp: false })).toBeNull();
   });
 });

@@ -23,15 +23,12 @@ function RootNavigator() {
     const target = nextRoute({
       hasSession: !!session,
       loading,
+      recovery,
       inAuth: segments[0] === "(auth)",
       inApp: segments[0] === "(tabs)",
     });
     if (target) router.replace(target);
-  }, [session, loading, segments, router]);
-
-  useEffect(() => {
-    if (recovery) router.replace("/update-password");
-  }, [recovery, router]);
+  }, [session, loading, recovery, segments, router]);
 
   if (loading) {
     return <View className="flex-1 bg-primary" />;

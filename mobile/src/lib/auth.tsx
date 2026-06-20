@@ -10,16 +10,18 @@ import * as Linking from "expo-linking";
 import { supabase } from "@/lib/supabase";
 import { createSessionFromUrl } from "@/lib/deep-link";
 
-type Route = "/login" | "/home" | null;
+type Route = "/login" | "/home" | "/update-password" | null;
 
-// Decision pura de redireccion segun sesion y grupo de ruta actual.
+// Decision pura de redireccion segun sesion, recuperacion y grupo de ruta actual.
 export function nextRoute(opts: {
   hasSession: boolean;
   loading: boolean;
+  recovery: boolean;
   inAuth: boolean;
   inApp: boolean;
 }): Route {
   if (opts.loading) return null;
+  if (opts.recovery) return "/update-password";
   if (!opts.hasSession && !opts.inAuth) return "/login";
   if (opts.hasSession && !opts.inApp) return "/home";
   return null;

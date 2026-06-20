@@ -1,7 +1,9 @@
 import { supabase } from "@/lib/supabase";
 
 // Extrae el `code` del deep link de Supabase (flujo PKCE).
-// Usa URL nativa para evitar dependencias nativas en los tests.
+// `new URL` depende del polyfill de `react-native-url-polyfill` que se carga
+// transitivamente al importar `@/lib/supabase`. Si ese import desaparece en
+// una refactorizacion, `extractAuthCode` fallara silenciosamente en dispositivo.
 export function extractAuthCode(url: string): string | null {
   try {
     const code = new URL(url).searchParams.get("code");
