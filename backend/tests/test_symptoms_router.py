@@ -14,6 +14,9 @@ class _FakeSymptomRepo:
         self.store: dict[uuid.UUID, Symptom] = {}
 
     async def add(self, symptom):
+        # Simula el server_default de created_at que el motor aplica al persistir.
+        if symptom.created_at is None:
+            symptom.created_at = datetime.now(UTC)
         self.store[symptom.id] = symptom
         return symptom
 
@@ -34,6 +37,7 @@ def _seed(repo, user_id, description="Mareo") -> Symptom:
     symptom = Symptom(
         id=uuid.uuid4(), user_id=user_id, description=description,
         occurred_at=datetime(2026, 6, 19, 13, 0, tzinfo=UTC),
+        created_at=datetime(2026, 6, 19, 13, 0, tzinfo=UTC),
     )
     repo.store[symptom.id] = symptom
     return symptom
