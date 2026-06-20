@@ -12,3 +12,11 @@ export async function listIntakes(opts: { from: string; to: string }): Promise<I
   const path = `/api/v1/intakes?from_date=${opts.from}&to_date=${opts.to}`;
   return apiRequest<Intake[]>(path, { token: getAccessToken });
 }
+
+export async function confirmIntake(id: string): Promise<Intake> {
+  return apiRequest<Intake>(`/api/v1/intakes/${id}/confirm`, {
+    method: "POST",
+    body: { photo_url: null },
+    token: getAccessToken,
+  });
+}
