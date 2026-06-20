@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     database_url: str  # requerido: si falta, la app no arranca
     supabase_jwt_secret: str  # secret HS256 de Supabase para verificar JWTs
     app_timezone: str = "America/Guayaquil"  # zona para programar tomas (UTC-5)
+    zhipu_api_key: str | None = None  # key de GLM/Zhipu; opcional hasta usar el LLM real
 
     @field_validator("database_url")
     @classmethod
