@@ -1,2 +1,2 @@
-// Setup global de pruebas. Aqui se registran mocks compartidos entre tests.
-import "@testing-library/react-native/dist/matchers/extend-expect";
+// RNTL registra sus matchers de Jest automaticamente via el preset; no se requiere import de extend-expect.
+export {};
