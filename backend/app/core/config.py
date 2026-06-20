@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     api_v1_prefix: str = "/api/v1"
     database_url: str  # requerido: si falta, la app no arranca
     supabase_jwt_secret: str  # secret HS256 de Supabase para verificar JWTs
+    app_timezone: str = "America/Guayaquil"  # zona para programar tomas (UTC-5)
 
     @field_validator("database_url")
     @classmethod
