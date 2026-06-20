@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     supabase_url: str  # URL del proyecto Supabase, ej. https://<ref>.supabase.co
     app_timezone: str = "America/Guayaquil"  # zona para programar tomas (UTC-5)
     zhipu_api_key: str | None = None  # key de GLM/Zhipu; opcional hasta usar el LLM real
+    # Origenes permitidos por CORS (clientes navegador). "*" en dev; en prod se restringe.
+    cors_allow_origins: str = "*"
 
     @field_validator("database_url")
     @classmethod
@@ -48,6 +50,13 @@ class Settings(BaseSettings):
     def supabase_issuer(self) -> str:
         # Emisor esperado en el claim `iss` de los tokens de Supabase
         return f"{self.supabase_url}/auth/v1"
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        # "*" permite cualquier origen (dev); si no, lista separada por comas.
+        if self.cors_allow_origins.strip() == "*":
+            return ["*"]
+        return [o.strip() for o in self.cors_allow_origins.split(",") if o.strip()]
 
 
 @lru_cache
