@@ -26,3 +26,15 @@ export async function createSymptom(input: SymptomInput): Promise<Symptom> {
     token: getAccessToken,
   });
 }
+
+export async function updateSymptom(id: string, input: Partial<SymptomInput>): Promise<Symptom> {
+  return apiRequest<Symptom>(`/api/v1/symptoms/${id}`, {
+    method: "PATCH",
+    body: input,
+    token: getAccessToken,
+  });
+}
+
+export async function deleteSymptom(id: string): Promise<void> {
+  await apiRequest<null>(`/api/v1/symptoms/${id}`, { method: "DELETE", token: getAccessToken });
+}
