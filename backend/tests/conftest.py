@@ -12,6 +12,7 @@ os.environ.setdefault(
 os.environ.setdefault("SUPABASE_JWT_SECRET", "test-jwt-secret-with-at-least-32-bytes")
 
 # Registra todos los modelos en Base.metadata para que las FK se resuelvan entre slices
+from app.ai.models import AiMessage  # noqa: F401
 from app.meds.models import Medication, MedicationSchedule  # noqa: F401
 from app.reminders.models import IntakeLog  # noqa: F401
 from app.symptoms.models import Symptom  # noqa: F401
