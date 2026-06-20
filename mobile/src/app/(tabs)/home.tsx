@@ -1,13 +1,14 @@
 import { useCallback } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { useRouter } from "expo-router";
+import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { useAuth } from "@/lib/auth";
 import { useAsync } from "@/lib/use-async";
-import { listIntakes } from "@/lib/intakes-api";
+import { confirmIntake, listIntakes } from "@/lib/intakes-api";
 import { listMedications } from "@/lib/meds-api";
 import { fetchMe } from "@/lib/users-api";
-import { adherence, nextDose, todaysMeds } from "@/lib/home-data";
+import { adherence, nextPendingIntake, todaysMeds } from "@/lib/home-data";
 
 function isoDate(offsetDays: number): string {
   const d = new Date();
@@ -27,15 +28,23 @@ async function loadHome() {
 export default function Home() {
   const router = useRouter();
   const { session } = useAuth();
-  const { data, error, loading } = useAsync(loadHome);
+  const { data, error, loading, reload } = useAsync(loadHome);
   const greetName = data?.me.full_name ?? session?.user?.email ?? "";
 
   const now = new Date();
-  const next = data ? nextDose(data.intakes, data.meds, now) : null;
+  const upcoming = data ? nextPendingIntake(data.intakes, now) : null;
+  const upcomingMed = upcoming
+    ? (data!.meds.find((m) => m.id === upcoming.medication_id) ?? null)
+    : null;
   const today = data ? todaysMeds(data.intakes, data.meds, now) : [];
   const stats = data ? adherence(data.intakes, now) : null;
 
   const goProfile = useCallback(() => router.push("/profile"), [router]);
+
+  async function onConfirm(id: string) {
+    await confirmIntake(id);
+    reload();
+  }
 
   return (
     <ScrollView className="flex-1 bg-surface" contentContainerClassName="gap-4 p-4">
@@ -49,11 +58,11 @@ export default function Home() {
       {loading ? <Text className="text-center font-sans text-muted">Cargando...</Text> : null}
       {error ? <Text className="text-center text-danger">No se pudo cargar el inicio</Text> : null}
 
-      {next ? (
+      {upcoming && upcomingMed ? (
         <Card>
           <Text className="font-sans text-muted">Proxima toma</Text>
-          <Text className="text-lg font-bold text-primary">{next.name} {next.dose}</Text>
-          <Text className="font-sans text-muted">{next.time}</Text>
+          <Text className="text-lg font-bold text-primary">{upcomingMed.name} {upcomingMed.dose}</Text>
+          <Button label="Confirmar" onPress={() => onConfirm(upcoming.id)} />
         </Card>
       ) : null}
 

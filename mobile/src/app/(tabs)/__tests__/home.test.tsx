@@ -1,5 +1,6 @@
-import { render, screen, waitFor } from "@testing-library/react-native";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react-native";
 import Home from "../home";
+import { confirmIntake } from "@/lib/intakes-api";
 
 // Fecha estatica futura (no relativa): el factory de jest.mock se hoistea sobre las
 // variables del modulo, asi que el intake pendiente "siempre futuro" hace el test
@@ -10,6 +11,7 @@ jest.mock("@/lib/intakes-api", () => ({
   listIntakes: jest.fn().mockResolvedValue([
     { id: "i1", medication_id: "m1", scheduled_at: "2099-12-31T10:00:00.000Z", status: "pending" },
   ]),
+  confirmIntake: jest.fn().mockResolvedValue({ id: "i1", status: "taken" }),
 }));
 jest.mock("@/lib/meds-api", () => ({
   listMedications: jest.fn().mockResolvedValue([{ id: "m1", name: "Losartan", dose: "50mg" }]),
@@ -23,5 +25,12 @@ describe("Home dashboard", () => {
     render(<Home />);
     await waitFor(() => expect(screen.getByText(/Losartan/)).toBeOnTheScreen());
     expect(screen.getByText(/Iris/)).toBeOnTheScreen();
+  });
+
+  it("confirms the next pending intake", async () => {
+    render(<Home />);
+    await waitFor(() => expect(screen.getByText("Confirmar")).toBeOnTheScreen());
+    fireEvent.press(screen.getByText("Confirmar"));
+    await waitFor(() => expect(confirmIntake).toHaveBeenCalledWith("i1"));
   });
 });

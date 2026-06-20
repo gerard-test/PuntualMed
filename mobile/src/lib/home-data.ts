@@ -54,6 +54,13 @@ export function todaysMeds(intakes: Intake[], meds: Medication[], now: Date): Do
     });
 }
 
+export function nextPendingIntake(intakes: Intake[], now: Date): Intake | null {
+  const upcoming = intakes
+    .filter((i) => i.status === "pending" && new Date(i.scheduled_at) >= now)
+    .sort((a, b) => a.scheduled_at.localeCompare(b.scheduled_at));
+  return upcoming[0] ?? null;
+}
+
 export function adherence(
   intakes: Intake[],
   now: Date,
