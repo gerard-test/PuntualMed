@@ -55,4 +55,7 @@ class GLMProvider:
             )
             response.raise_for_status()
             data = response.json()
-            return data["choices"][0]["message"]["content"]
+            try:
+                return data["choices"][0]["message"]["content"]
+            except (KeyError, IndexError, TypeError) as exc:
+                raise RuntimeError(f"Respuesta inesperada de GLM: {data}") from exc

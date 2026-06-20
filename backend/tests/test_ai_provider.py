@@ -32,3 +32,12 @@ async def test_glm_provider_parses_response_and_sends_disclaimer_prompt():
     # el system prompt instruye a incluir el disclaimer y se manda el modelo de texto
     assert DISCLAIMER in captured["body"]
     assert "glm-4-flash" in captured["body"]
+
+
+async def test_glm_provider_malformed_response_raises():
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={"choices": []})
+
+    provider = GLMProvider(api_key="test-key", transport=httpx.MockTransport(handler))
+    with pytest.raises(RuntimeError):
+        await provider.analyze_symptoms([], [])
