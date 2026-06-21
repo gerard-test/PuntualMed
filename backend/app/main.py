@@ -1,18 +1,44 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime
 
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.router import api_router
 from app.core.config import get_settings
+from app.core.database import get_session_factory
+from app.reminders.repository import IntakeRepository
+from app.reminders.worker import mark_missed_intakes
+
+
+async def run_missed_job() -> None:
+    # Job del scheduler: marca las tomas vencidas y persiste el cambio.
+    settings = get_settings()
+    session_factory = get_session_factory()
+    async with session_factory() as session:
+        repo = IntakeRepository(session)
+        await mark_missed_intakes(repo, datetime.now(UTC), settings.missed_grace_minutes)
+        await session.commit()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Punto unico de arranque/cierre de recursos del proceso
-    # Placeholder intencional: aqui se conectaran recursos de arranque/cierre cuando hagan falta.
-    yield
+    settings = get_settings()
+    scheduler: AsyncIOScheduler | None = None
+    if settings.worker_enabled:
+        scheduler = AsyncIOScheduler()
+        scheduler.add_job(
+            run_missed_job, "interval", minutes=settings.missed_scan_interval_minutes
+        )
+        scheduler.start()
+    try:
+        yield
+    finally:
+        if scheduler is not None:
+            scheduler.shutdown(wait=False)
 
 
 def create_app() -> FastAPI:
