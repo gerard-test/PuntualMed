@@ -5,13 +5,7 @@ import { useAsync } from "@/lib/use-async";
 import { listIntakes } from "@/lib/intakes-api";
 import { listMedications } from "@/lib/meds-api";
 import { listSymptoms } from "@/lib/symptoms-api";
-import { dayDetail, dayStatuses, daysInMonth, statusIcon } from "@/lib/calendar-data";
-
-function statusColor(status: "taken" | "missed" | "pending"): string {
-  if (status === "taken") return "font-sans text-success";
-  if (status === "missed") return "font-sans text-danger";
-  return "font-sans text-sky";
-}
+import { dayDetail, dayStatuses, daysInMonth, statusColor, statusIcon } from "@/lib/calendar-data";
 
 const MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 

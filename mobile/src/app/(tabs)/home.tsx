@@ -9,6 +9,7 @@ import { confirmIntake, listIntakes } from "@/lib/intakes-api";
 import { listMedications } from "@/lib/meds-api";
 import { fetchMe } from "@/lib/users-api";
 import { adherence, formatTime, nextPendingIntake, todaysMeds } from "@/lib/home-data";
+import { statusColor, statusIcon } from "@/lib/calendar-data";
 
 function isoDate(offsetDays: number): string {
   const d = new Date();
@@ -87,9 +88,12 @@ export default function Home() {
           <Text className="font-sans text-muted">Sin tomas para hoy</Text>
         ) : (
           today.map((row) => (
-            <View key={row.id} className="flex-row justify-between py-1">
+            <View key={row.id} className="flex-row items-center justify-between py-1">
               <Text className="font-sans text-primary">{row.name} {row.dose}</Text>
-              <Text className="font-sans text-muted">{row.time} - {row.status}</Text>
+              <View className="flex-row items-center gap-2">
+                <Text className="font-sans text-muted">{row.time}</Text>
+                <Text className={statusColor(row.status)}>{statusIcon(row.status)}</Text>
+              </View>
             </View>
           ))
         )}

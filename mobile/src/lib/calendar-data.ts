@@ -51,6 +51,13 @@ export function statusIcon(status: "taken" | "missed" | "pending"): string {
   return "•";
 }
 
+// Clase de color por estado de toma (verde tomada, rojo vencida, celeste pendiente).
+export function statusColor(status: "taken" | "missed" | "pending"): string {
+  if (status === "taken") return "font-sans text-success";
+  if (status === "missed") return "font-sans text-danger";
+  return "font-sans text-sky";
+}
+
 export function dayDetail(
   intakes: Intake[],
   meds: Medication[],

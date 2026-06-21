@@ -1,7 +1,15 @@
 import type { Intake } from "@/lib/intakes-api";
 import type { Medication } from "@/lib/meds-api";
 
-type DoseRow = { id: string; name: string; dose: string; time: string; status: string };
+type DoseStatus = "taken" | "missed" | "pending";
+type DoseRow = { id: string; name: string; dose: string; time: string; status: DoseStatus };
+
+// "missed" se deriva: pendiente y ya vencida (no hay worker que lo persista).
+function doseStatus(intake: Intake, now: Date): DoseStatus {
+  if (intake.status === "taken") return "taken";
+  if (new Date(intake.scheduled_at) < now) return "missed";
+  return "pending";
+}
 
 // Hora local en formato 12h (ej. "9:00 AM").
 export function formatTime(iso: string): string {
@@ -49,7 +57,7 @@ export function todaysMeds(intakes: Intake[], meds: Medication[], now: Date): Do
         name: med.name,
         dose: med.dose,
         time: formatTime(i.scheduled_at),
-        status: i.status,
+        status: doseStatus(i, now),
       };
     });
 }
