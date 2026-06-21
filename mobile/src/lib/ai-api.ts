@@ -9,10 +9,11 @@ export type AiMessage = {
   created_at: string;
 };
 
-// El backend carga los sintomas/meds del usuario; no se envia body.
-export async function analyzeSymptoms(): Promise<AiMessage> {
+// El backend analiza el sintoma indicado o todos si symptomId es undefined.
+export async function analyzeSymptoms(symptomId?: string): Promise<AiMessage> {
   return apiRequest<AiMessage>("/api/v1/ai/symptoms/analyze", {
     method: "POST",
+    body: { symptom_id: symptomId ?? null },
     token: getAccessToken,
   });
 }
