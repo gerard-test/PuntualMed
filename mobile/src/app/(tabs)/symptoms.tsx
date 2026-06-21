@@ -41,15 +41,21 @@ export default function Symptoms() {
       ) : null}
 
       {(data?.symptoms ?? []).map((s) => (
-        <Card key={s.id}>
-          <Text className="font-semibold text-primary">{s.description}</Text>
-          <Text className="font-sans text-muted">
-            {s.severity ?? "sin severidad"} - {s.occurred_at.slice(0, 10)} {formatTime(s.occurred_at)}
-          </Text>
-          {medName(s.medication_id) ? (
-            <Text className="font-sans text-muted">Medicamento: {medName(s.medication_id)}</Text>
-          ) : null}
-        </Card>
+        <Pressable
+          key={s.id}
+          accessibilityRole="button"
+          onPress={() => router.push({ pathname: "/symptom-detail", params: { id: s.id } })}
+        >
+          <Card>
+            <Text className="font-semibold text-primary">{s.description}</Text>
+            <Text className="font-sans text-muted">
+              {s.severity ?? "sin severidad"} - {s.occurred_at.slice(0, 10)} {formatTime(s.occurred_at)}
+            </Text>
+            {medName(s.medication_id) ? (
+              <Text className="font-sans text-muted">Medicamento: {medName(s.medication_id)}</Text>
+            ) : null}
+          </Card>
+        </Pressable>
       ))}
     </ScrollView>
   );
