@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
+import { useRouter } from "expo-router";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
@@ -10,6 +11,7 @@ import { fetchMe, updateProfile } from "@/lib/users-api";
 import { signOut, updatePassword } from "@/lib/auth-actions";
 
 export default function Profile() {
+  const router = useRouter();
   const { session } = useAuth();
   const { data } = useAsync(fetchMe);
   const [name, setName] = useState("");
@@ -51,7 +53,8 @@ export default function Profile() {
 
       {notice ? <Text className="text-center font-sans text-muted">{notice}</Text> : null}
 
-      <View className="mt-4">
+      <View className="gap-2 mt-4">
+        <Button label="Familiares" variant="secondary" onPress={() => router.push("/family")} />
         <Button label="Cerrar sesión" variant="secondary" onPress={() => signOut()} />
       </View>
     </ScrollView>

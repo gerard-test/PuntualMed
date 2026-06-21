@@ -62,6 +62,7 @@ export default function TabsLayout() {
       <Tabs.Screen name="register-symptom" options={{ href: null }} />
       <Tabs.Screen name="edit-medication" options={{ href: null }} />
       <Tabs.Screen name="symptom-detail" options={{ href: null }} />
+      <Tabs.Screen name="family" options={{ href: null }} />
     </Tabs>
   );
 }
