@@ -4,7 +4,9 @@ Aplicación móvil para la gestión y adherencia a tratamientos de medicación.
 Ayuda al paciente a tomar sus medicamentos a tiempo y permite que un familiar
 haga seguimiento remoto de su cumplimiento.
 
-Proyecto final de la asignatura de Dispositivos Móviles.
+# Slogan
+
+Tu tratamiento, guiado por inteligencia
 
 ## El problema
 

@@ -25,7 +25,3 @@ dominio con responsabilidades claras y aisladas (`users`, `meds`, `reminders`, `
 
 **Negativas:**
 - Escalado por ahora es vertical o por réplicas del monolito completo, no por servicio.
-
-## Alternativas consideradas
-
-- **Microservicios:** descartado. Con nuestro equipo hemos decidido dejar de lado los microservicios, dado que basado en la lógica del negocio, un monolito es suficiente.
