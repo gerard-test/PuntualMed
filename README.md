@@ -14,7 +14,7 @@ tratamiento se está cumpliendo. PuntualMed centraliza los medicamentos, recuerd
 cada toma, registra la adherencia y avisa al familiar cuando algo se sale de lo
 previsto.
 
-## Funcionalidades del PMV
+## Funcionalidades del MVP
 
 - Alta de medicamentos y horarios (manual)
 - Recordatorios de toma (notificaciones push)
@@ -54,10 +54,4 @@ Ver el [mapa tecnológico](docs/architecture/diagrams/puntualmed-mapa-tecnologic
 
 ## Estado
 
-En diseño, antes de implementación. La base documental (diseño, C4, ADRs, modelo
-de datos) está completa; el desarrollo del PMV es el siguiente paso.
-
-## Equipo
-
-- Iris1902
-- ajcr9496
+En implementacion, dado que documentación y maquetado en figma está finalizado, enlace de Figma: https://www.figma.com/design/5cYQJzLuLzDoyd7o1Ubv6A/PuntualMed?node-id=16-3&t=I5jZezukCMD6H236-1

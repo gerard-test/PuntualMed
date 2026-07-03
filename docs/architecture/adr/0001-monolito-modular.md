@@ -28,7 +28,4 @@ dominio con responsabilidades claras y aisladas (`users`, `meds`, `reminders`, `
 
 ## Alternativas consideradas
 
-- **Microservicios:** descartado. Los microservicios resuelven un problema organizacional
-  (muchos equipos desplegando independientemente, Ley de Conway), no técnico. Con un equipo
-  de dos personas se paga todo el costo sin ningún beneficio. Casos como Amazon Prime Video
-  (que volvió a monolito) y Shopify (monolito modular) respaldan esta elección a esta escala.
+- **Microservicios:** descartado. Con nuestro equipo hemos decidido dejar de lado los microservicios, dado que basado en la lógica del negocio, un monolito es suficiente.

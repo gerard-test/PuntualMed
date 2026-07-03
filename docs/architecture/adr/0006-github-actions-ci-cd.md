@@ -18,8 +18,7 @@ Usar **GitHub Actions** como pipeline de CI/CD. En cada push y pull request:
 - Construye las imágenes **Docker** de API y Worker.
 
 Docker ya es parte del despliegue (Render despliega desde imágenes). **SonarQube/SonarCloud**
-y **Redis** quedan fuera de esta versión (YAGNI / costo); se documentan en la reconciliación
-de stack (§2.1 del diseño) como mejoras futuras.
+y **Redis** quedan fuera de esta versión pero quedan como mejoras futuras.
 
 ## Consecuencias
 

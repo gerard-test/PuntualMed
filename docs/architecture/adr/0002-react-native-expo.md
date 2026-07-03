@@ -19,8 +19,7 @@ independiente de esta elección.
 
 **Positivas:**
 - Curva de aprendizaje mínima al reutilizar conocimiento de React/JS.
-- Expo simplifica el build del APK (EAS) y el manejo de notificaciones push.
-- Un solo codebase.
+- Expo simplifica y permite el manejo de notificaciones push.
 
 **Negativas:**
 - Para funciones nativas muy específicas se podría necesitar salir del "managed workflow" de Expo.

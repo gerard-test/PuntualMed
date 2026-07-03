@@ -14,8 +14,7 @@ API.
 
 Ejecutar un **worker separado** (proceso aparte del API) con **APScheduler**, que comparte
 el código de dominio y la base de datos con el API pero corre como su propia unidad
-desplegable. La idempotencia se garantiza con el estado de `intake_logs` y el flag
-`alert_sent`.
+desplegable.
 
 ## Consecuencias
 
@@ -26,7 +25,7 @@ desplegable. La idempotencia se garantiza con el estado de `intake_logs` y el fl
 
 **Negativas:**
 - Un proceso más que desplegar y monitorear.
-- Requiere cuidado con la idempotencia para no duplicar recordatorios ni alertas.
+- Requiere cuidado para no duplicar recordatorios ni alertas.
 
 ## Alternativas consideradas
 

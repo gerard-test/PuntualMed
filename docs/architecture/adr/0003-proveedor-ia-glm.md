@@ -24,7 +24,7 @@ recetas y consultas de texto. La implementación por defecto es **GLM (Zhipu)**:
 - El disclaimer médico obligatorio se inyecta en el prompt de todos los métodos de salud.
 
 **Negativas:**
-- La capa gratuita puede tener límites de tasa o latencia variable; se mitiga con degradación a entrada manual.
+- La capa gratuita puede tener límites de tasa o latencia variable.
 
 ## Alternativas consideradas
 
