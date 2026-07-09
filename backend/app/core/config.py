@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     missed_scan_interval_minutes: int = 15  # cada cuanto corre el worker
     worker_enabled: bool = True  # se desactiva en tests para no levantar el scheduler
     zhipu_api_key: str | None = None  # key de GLM/Zhipu; opcional hasta usar el LLM real
+    gemini_api_key: str | None = None  # key de Google AI Studio para Gemini 1.5 Flash
     telegram_bot_token: str | None = None  # token de @BotFather; sin el, las alertas se desactivan
     # username del bot (sin @), para el deep link t.me/<username>
     telegram_bot_username: str | None = None
