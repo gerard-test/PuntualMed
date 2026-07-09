@@ -48,3 +48,13 @@ class MedicationUpdate(BaseModel):
     frequency_hours: int | None = None
     notes: str | None = None
     active: bool | None = None
+
+
+class PrescriptionMedication(BaseModel):
+    name: str
+    dose: str
+    start_date: date | None = None
+    duration_days: int | None = None
+    frequency_hours: int | None = None
+    schedules: list[ScheduleCreate] = Field(default_factory=list)
+    notes: str | None = None
