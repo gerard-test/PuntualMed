@@ -1,12 +1,15 @@
 import { useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Alert, Platform, Pressable, ScrollView, Text, View } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { getEnv } from "@/lib/env";
 import { createMedication } from "@/lib/meds-api";
-import { FREQUENCIES, UNITS, toInput, validateMedForm, type MedForm } from "@/lib/med-form";
+import { FREQUENCIES, UNITS, recipeToForm, toInput, validateMedForm, type MedForm } from "@/lib/med-form";
+import { getAccessToken } from "@/lib/supabase";
 
 function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
@@ -26,6 +29,7 @@ export default function AddMedication() {
   const [form, setForm] = useState<MedForm>(EMPTY);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploadingRecipe, setUploadingRecipe] = useState(false);
 
   function set<K extends keyof MedForm>(key: K, value: MedForm[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -49,9 +53,85 @@ export default function AddMedication() {
     }
   }
 
+  async function onUploadRecipe() {
+    try {
+      setUploadingRecipe(true);
+      setError(null);
+
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permissionResult.granted) {
+        Alert.alert("Permiso requerido", "Necesitas permitir el acceso a tus fotos para subir una receta.");
+        return;
+      }
+
+      const pickerResult = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        allowsEditing: true,
+        quality: 0.8,
+      });
+
+      if (pickerResult.canceled || !pickerResult.assets?.[0]) {
+        return;
+      }
+
+      const asset = pickerResult.assets[0];
+      const formData = new FormData();
+      if (Platform.OS === "web" && asset.file) {
+        formData.append("file", asset.file, asset.file.name || `recipe-${Date.now()}.jpg`);
+      } else {
+        const fileName = asset.fileName ?? `recipe-${Date.now()}.jpg`;
+        const fileType = asset.mimeType ?? "image/jpeg";
+        formData.append("file", {
+          uri: asset.uri,
+          name: fileName,
+          type: fileType,
+        } as unknown as Blob);
+      }
+
+      const token = await getAccessToken();
+      const { apiBaseUrl } = getEnv();
+      const response = await fetch(`${apiBaseUrl}/api/v1/medications/from-recipe`, {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        body: formData,
+      });
+
+      const text = await response.text();
+      const data = text ? JSON.parse(text) : null;
+      if (!response.ok) {
+        throw new Error(data?.detail ?? "No se pudo procesar la receta");
+      }
+
+      const recipes = Array.isArray(data) ? data : [];
+      if (recipes.length === 0) {
+        throw new Error("No se pudo extraer ningún medicamento de la receta");
+      }
+
+      const [first] = recipes;
+      setForm(
+        recipeToForm({
+          name: first?.name,
+          dose: first?.dose,
+          start_date: first?.start_date,
+          duration_days: first?.duration_days,
+          frequency_hours: first?.frequency_hours,
+          schedules: first?.schedules?.map((schedule: { time_of_day?: string | null }) => schedule?.time_of_day ?? "") ?? [],
+          notes: first?.notes,
+        }),
+      );
+
+      Alert.alert("Receta procesada", `Se cargaron ${recipes.length} medicamento(s) en el formulario.`);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "No se pudo procesar la receta");
+    } finally {
+      setUploadingRecipe(false);
+    }
+  }
+
   return (
     <ScrollView className="flex-1 bg-white" contentContainerClassName="gap-3 p-4">
       <ScreenHeader title="Nuevo medicamento" />
+      <Button label={uploadingRecipe ? "Subiendo receta..." : "Subir receta"} onPress={onUploadRecipe} disabled={uploadingRecipe} />
       <Input value={form.name} onChangeText={(v) => set("name", v)} placeholder="Nombre" />
 
       <Text className="font-semibold text-primary">Dosis</Text>
