@@ -1,8 +1,11 @@
 import uuid
+from datetime import date
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.ai.router import get_ai_service
+from app.ai.service import AiService
 from app.core.database import get_db
 from app.core.security import CurrentUser, get_current_user
 from app.meds.repository import MedicationRepository
@@ -10,6 +13,7 @@ from app.meds.schemas import (
     MedicationCreate,
     MedicationRead,
     MedicationUpdate,
+    PrescriptionMedication,
     ScheduleCreate,
     ScheduleRead,
 )
@@ -39,6 +43,59 @@ async def create_medication(
     # Genera las tomas del tratamiento en la misma sesion/transaccion
     await intake_service.generate_for_medication(medication)
     return MedicationRead.model_validate(medication)
+
+
+@router.post(
+    "/from-recipe",
+    response_model=list[MedicationRead],
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_medications_from_recipe(
+    file: UploadFile = File(...),
+    start_date: date | None = None,
+    duration_days: int | None = None,
+    current: CurrentUser = Depends(get_current_user),
+    service: MedicationService = Depends(get_medication_service),
+    intake_service: IntakeService = Depends(get_intake_service),
+    ai_service: AiService = Depends(get_ai_service),
+) -> list[MedicationRead]:
+    image_bytes = await file.read()
+    extracted = await ai_service.extract_medications_from_image(
+        current.id, file.filename or "recipe.png", image_bytes
+    )
+    if not extracted:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="No se pudieron extraer medicamentos de la imagen. Intenta con una receta más clara o ingrésalos manualmente.",
+        )
+
+    created: list[MedicationRead] = []
+    for item in extracted:
+        name = str(item.get("name") or "").strip()
+        dose = str(item.get("dose") or "").strip()
+        if not name or not dose:
+            continue
+
+        schedules = item.get("schedules") or []
+        if isinstance(schedules, str):
+            schedules = [schedules]
+        payload = MedicationCreate(
+            name=name,
+            dose=dose,
+            start_date=item.get("start_date") or start_date or date.today(),
+            duration_days=int(item.get("duration_days") or duration_days or 7),
+            frequency_hours=item.get("frequency_hours"),
+            notes=item.get("notes"),
+            schedules=[
+                ScheduleCreate(time_of_day=schedule)
+                for schedule in schedules
+                if isinstance(schedule, str) and schedule.strip()
+            ],
+        )
+        medication = await service.create(current.id, payload)
+        await intake_service.generate_for_medication(medication)
+        created.append(MedicationRead.model_validate(medication))
+    return created
 
 
 @router.get("", response_model=list[MedicationRead])
