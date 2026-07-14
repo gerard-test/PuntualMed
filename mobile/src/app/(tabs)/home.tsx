@@ -69,20 +69,22 @@ export default function Home() {
 
   return (
     <View className="flex-1 bg-[#F3F4F6]">
-      {/* Header */}
-      <View className="bg-white flex-row items-center justify-between px-4 h-16 pt-2 border-b border-gray-100">
-        <View className="flex-row items-center gap-3">
+      {/* Header Corregido (Eliminada altura fija h-16, añadido py-3 e items-center robusto) */}
+      <View className="bg-white flex-row items-center justify-between px-4 py-3 border-b border-gray-100">
+        <View className="flex-row items-center gap-3 flex-1 mr-2">
           {/* Logo circular corregido con 3 niveles hacia atrás */}
-          <View className="w-9 h-9 rounded-full bg-white justify-center items-center p-0.5 border border-gray-200">
+          <View className="w-10 h-10 rounded-full bg-white justify-center items-center p-0.5 border border-gray-200">
             <Image 
               source={require("../../../assets/images/logo.png")} 
               className="w-full h-full rounded-full"
               resizeMode="contain"
             />
           </View>
-          <View>
-            <Text className="text-[#6B7280] text-xs">Buenos días</Text>
-            <Text className="text-[#1E293B] font-bold text-lg">Hola, {greetName} 👋</Text>
+          <View className="flex-1 justify-center">
+            <Text className="text-[#6B7280] text-xs font-medium">Buenos días</Text>
+            <Text className="text-[#1E293B] font-bold text-base" numberOfLines={1}>
+              Hola, {greetName} 👋
+            </Text>
           </View>
         </View>
         
