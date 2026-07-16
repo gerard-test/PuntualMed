@@ -43,6 +43,18 @@ export default function Home() {
   const { data, error, loading, reload } = useAsync(loadHome);
   const greetName = data?.me.full_name ?? session?.user?.email ?? "Usuario";
 
+  // Función para obtener el saludo dinámico según la hora del dispositivo
+  const obtenerSaludo = () => {
+    const hora = new Date().getHours();
+    if (hora >= 6 && hora < 12) {
+      return "Buenos días";
+    } else if (hora >= 12 && hora < 19) {
+      return "Buenas tardes";
+    } else {
+      return "Buenas noches";
+    }
+  };
+
   useFocusEffect(
     useCallback(() => {
       reload();
@@ -81,7 +93,7 @@ export default function Home() {
             />
           </View>
           <View className="flex-1 justify-center">
-            <Text className="text-[#6B7280] text-xs font-medium">Buenos días</Text>
+            <Text className="text-[#6B7280] text-xs font-medium">{obtenerSaludo()}</Text>
             <Text className="text-[#1E293B] font-bold text-base" numberOfLines={1}>
               Hola, {greetName} 👋
             </Text>

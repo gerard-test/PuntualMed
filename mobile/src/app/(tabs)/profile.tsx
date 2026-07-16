@@ -13,7 +13,10 @@ import { signOut, updatePassword } from "@/lib/auth-actions";
 export default function Profile() {
   const router = useRouter();
   const { session } = useAuth();
-  const { data } = useAsync(fetchMe);
+  
+  // Obtenemos data y reload del hook
+  const { data, reload } = useAsync(fetchMe);
+  
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [notice, setNotice] = useState<string | null>(null);
@@ -23,21 +26,46 @@ export default function Profile() {
     if (data?.full_name) setName(data.full_name);
   }, [data]);
 
+  // Función guardar nombre corregida con control de errores robusto
   async function saveName() {
-    await updateProfile({ full_name: name.trim() });
-    setNotice("Nombre actualizado");
+    if (!name.trim()) {
+      setNotice("El nombre no puede estar vacío");
+      return;
+    }
+    
+    try {
+      setNotice("Guardando...");
+      await updateProfile({ full_name: name.trim() });
+      await reload(); // Fuerza a que la app pida los nuevos datos al servidor
+      setNotice("Nombre actualizado con éxito");
+    } catch (error: any) {
+      setNotice("Error al guardar el nombre");
+      console.error(error);
+    }
   }
 
   async function savePassword() {
-    const result = await updatePassword(password);
-    setNotice(result.error ?? "Contraseña actualizada");
-    if (!result.error) setPassword("");
+    try {
+      const result = await updatePassword(password);
+      setNotice(result.error ?? "Contraseña actualizada");
+      if (!result.error) setPassword("");
+    } catch (error) {
+      setNotice("Error al guardar la contraseña");
+      console.error(error);
+    }
   }
 
   return (
     <ScrollView className="flex-1 bg-surface" contentContainerClassName="gap-4 p-4">
       <ScreenHeader title="Perfil" />
-      <Text className="font-sans text-muted">{session?.user?.email}</Text>
+      
+      {/* Muestra el Nombre dinámico y el correo abajo */}
+      <View className="px-1">
+        {data?.full_name ? (
+          <Text className="font-sans font-bold text-lg text-primary">{data.full_name}</Text>
+        ) : null}
+        <Text className="font-sans text-muted text-sm">{session?.user?.email}</Text>
+      </View>
 
       <Card className="gap-2">
         <Text className="font-semibold text-primary">Nombre</Text>
