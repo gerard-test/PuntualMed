@@ -1,5 +1,5 @@
 import uuid
-from datetime import timedelta
+from datetime import timedelta, time
 
 from app.meds.models import Medication, MedicationSchedule
 from app.meds.repository import MedicationRepository
@@ -14,23 +14,48 @@ class MedicationService:
     async def create(
         self, user_id: uuid.UUID, data: MedicationCreate
     ) -> Medication:
-        # end_date derivado de la duracion del tratamiento
+        # 1. Determinar si la información es completa (si tiene frecuencia)
+        # Esto sirve de interruptor para la lógica de seguridad
+        is_manual_or_complete = data.frequency_hours is not None
+
+        # 2. Manejo de notas: solo añade advertencia si NO hay frecuencia clara
+        notes = data.notes or ""
+        if not is_manual_or_complete:
+            notes = (
+                f"⚠️ NOTA: Horario inferido por IA. Por favor, valide la pauta de tratamiento con su médico. "
+                f"{notes}"
+            )
+
+        # 3. Lógica de horarios
+        if data.schedules and len(data.schedules) > 0:
+            schedules_to_add = [
+                MedicationSchedule(id=uuid.uuid4(), time_of_day=s.time_of_day)
+                for s in data.schedules
+            ]
+        else:
+            # Fallback seguro a las 08:00 AM para evitar arrays vacíos
+            schedules_to_add = [
+                MedicationSchedule(id=uuid.uuid4(), time_of_day=time(8, 0, 0))
+            ]
+
+        # 4. Asignación de frecuencia default (24h) solo si es necesaria
+        frequency = data.frequency_hours if is_manual_or_complete else 24
+
+        # 5. end_date derivado de la duracion del tratamiento
         end_date = data.start_date + timedelta(days=data.duration_days)
+        
         medication = Medication(
             id=uuid.uuid4(),
             user_id=user_id,
             name=data.name,
             dose=data.dose,
-            frequency_hours=data.frequency_hours,
+            frequency_hours=frequency,
             start_date=data.start_date,
             duration_days=data.duration_days,
             end_date=end_date,
-            notes=data.notes,
-            source="manual",
-            schedules=[
-                MedicationSchedule(id=uuid.uuid4(), time_of_day=s.time_of_day)
-                for s in data.schedules
-            ],
+            notes=notes,
+            source="manual" if is_manual_or_complete else "ai_inferred",
+            schedules=schedules_to_add,
         )
         return await self._repository.add(medication)
 
