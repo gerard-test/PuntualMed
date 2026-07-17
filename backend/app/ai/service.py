@@ -63,33 +63,22 @@ class AiService:
     ) -> list[dict[str, Any]]:
         _ = user_id
         
-        # Validamos que el proveedor exista y tenga la capacidad de extraer de imágenes
+        # Validamos que el proveedor exista
         if self._provider is None or not hasattr(self._provider, "extract_medications_from_image"):
             return []
 
         try:
-            # Delegamos el trabajo de extracción al proveedor de IA
+            # Delegamos al proveedor
             extracted = await self._provider.extract_medications_from_image(
                 filename, image_bytes
             )
             
-            # Normalizamos la respuesta para garantizar que la estructura sea la esperada
-            normalized = self._normalize_prescription_output(extracted)
-            
-            if normalized:
-                return normalized
+            # Normalizamos la respuesta
+            return self._normalize_prescription_output(extracted)
                 
         except Exception as e:
-            # Si el proveedor de IA falla (ej. error de red, token inválido),
-            # devolvemos una lista vacía para que el frontend maneje el error
-            # mostrando un mensaje al usuario.
-            import httpx
-            if isinstance(e, httpx.HTTPStatusError):
-                print(f"\n❌ CHISME COMPLETO DE DEEPSEEK: {e.response.text}\n")
-            else:
-                print(f"\n❌ ERROR FATAL DE IA: {str(e)}\n")
-            pass
-        return []
+            print(f"❌ ERROR: Fallo al procesar extracción con IA: {str(e)}")
+            return []
 
     @staticmethod
     def _normalize_prescription_output(items: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
@@ -100,6 +89,7 @@ class AiService:
         for item in items:
             if not isinstance(item, dict):
                 continue
+            
             schedules = item.get("schedules") or []
             if isinstance(schedules, str):
                 schedules = [schedules]
@@ -121,7 +111,6 @@ class AiService:
 
     @staticmethod
     def _ensure_disclaimer(content: str) -> str:
-        # Fail-safe: el usuario SIEMPRE recibe el disclaimer
         if DISCLAIMER in content:
             return content
         return f"{content}\n\n{DISCLAIMER}"

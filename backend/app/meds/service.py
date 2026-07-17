@@ -7,20 +7,19 @@ from app.meds.schemas import MedicationCreate, MedicationUpdate, ScheduleCreate
 
 
 class MedicationService:
-    # Logica de medicamentos; la autorizacion se aplica filtrando por user_id
     def __init__(self, repository: MedicationRepository) -> None:
         self._repository = repository
 
     async def create(
         self, user_id: uuid.UUID, data: MedicationCreate
     ) -> Medication:
-        # 1. Determinar si la información es completa (si tiene frecuencia)
-        # Esto sirve de interruptor para la lógica de seguridad
-        is_manual_or_complete = data.frequency_hours is not None
-
-        # 2. Manejo de notas: solo añade advertencia si NO hay frecuencia clara
+        # 1. Detección de inferencia (si la IA no mandó frecuencia)
+        inferred_frequency = data.frequency_hours is None
+        frequency = data.frequency_hours if not inferred_frequency else 24
+        
+        # 2. Construcción de notas con advertencia si es inferido
         notes = data.notes or ""
-        if not is_manual_or_complete:
+        if inferred_frequency:
             notes = (
                 f"⚠️ NOTA: Horario inferido por IA. Por favor, valide la pauta de tratamiento con su médico. "
                 f"{notes}"
@@ -33,15 +32,11 @@ class MedicationService:
                 for s in data.schedules
             ]
         else:
-            # Fallback seguro a las 08:00 AM para evitar arrays vacíos
             schedules_to_add = [
                 MedicationSchedule(id=uuid.uuid4(), time_of_day=time(8, 0, 0))
             ]
 
-        # 4. Asignación de frecuencia default (24h) solo si es necesaria
-        frequency = data.frequency_hours if is_manual_or_complete else 24
-
-        # 5. end_date derivado de la duracion del tratamiento
+        # 4. Construcción del objeto
         end_date = data.start_date + timedelta(days=data.duration_days)
         
         medication = Medication(
@@ -54,7 +49,7 @@ class MedicationService:
             duration_days=data.duration_days,
             end_date=end_date,
             notes=notes,
-            source="manual" if is_manual_or_complete else "ai_inferred",
+            source="ai_inferred" if inferred_frequency else "manual",
             schedules=schedules_to_add,
         )
         return await self._repository.add(medication)
