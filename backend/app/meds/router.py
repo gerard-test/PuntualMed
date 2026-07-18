@@ -16,6 +16,7 @@ from app.meds.schemas import (
     PrescriptionMedication,
     ScheduleCreate,
     ScheduleRead,
+    ScheduleRecalculate,
 )
 from app.meds.service import MedicationService
 from app.reminders.router import get_intake_service
@@ -141,6 +142,29 @@ async def delete_medication(
     deleted = await service.delete(current.id, medication_id)
     if not deleted:
         raise _NOT_FOUND
+
+
+@router.post(
+    "/{medication_id}/recalculate", 
+    response_model=list[ScheduleRead]
+)
+async def recalculate_medication_schedules(
+    medication_id: uuid.UUID,
+    data: ScheduleRecalculate,
+    current: CurrentUser = Depends(get_current_user),
+    service: MedicationService = Depends(get_medication_service),
+    intake_service: IntakeService = Depends(get_intake_service),
+) -> list[ScheduleRead]:
+    schedules = await service.recalculate_schedules(current.id, medication_id, data.new_start_time)
+    if schedules is None:
+        raise _NOT_FOUND
+    
+    # IMPORTANTE: Al cambiar los horarios, también debemos regenerar las tomas futuras
+    medication = await service.get_for_user(current.id, medication_id)
+    if medication:
+        await intake_service.generate_for_medication(medication)
+        
+    return [ScheduleRead.model_validate(s) for s in schedules]
 
 
 @router.post(

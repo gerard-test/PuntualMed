@@ -1,10 +1,9 @@
 import uuid
-
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.ai.provider import AIProvider, GeminiProvider, GLMProvider
+from app.ai.provider import AIProvider, GeminiProvider
 from app.ai.repository import AiMessageRepository
 from app.ai.schemas import AiMessageRead
 from app.ai.service import AiService
@@ -16,20 +15,20 @@ from app.symptoms.repository import SymptomRepository
 
 router = APIRouter(prefix="/ai", tags=["ai"])
 
-
 class AnalyzeRequest(BaseModel):
     symptom_id: uuid.UUID | None = None
 
-
-# Valor por defecto a nivel de modulo para evitar B008 (llamada en default de argumento)
 _DEFAULT_ANALYZE_REQUEST = AnalyzeRequest()
 
 
 def get_ai_provider() -> AIProvider:
     settings = get_settings()
-    if settings.gemini_api_key:
-        return GeminiProvider(settings.gemini_api_key)
-    return GLMProvider(settings.zhipu_api_key)
+    
+    # Validamos que la clave exista antes de instanciar Gemini
+    if not settings.gemini_api_key:
+        raise RuntimeError("GEMINI_API_KEY no configurada. Revisa tu archivo .env")
+        
+    return GeminiProvider(settings.gemini_api_key)
 
 
 def get_ai_service(
