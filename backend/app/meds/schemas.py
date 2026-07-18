@@ -26,6 +26,7 @@ class MedicationCreate(BaseModel):
     duration_days: int = Field(gt=0)
     frequency_hours: int | None = Field(default=None, gt=0)
     notes: str | None = None
+    tags: list[str] = Field(default_factory=list)
     schedules: list[ScheduleCreate] = Field(default_factory=list)
 
 
@@ -40,6 +41,7 @@ class MedicationRead(BaseModel):
     duration_days: int
     end_date: date
     notes: str | None
+    tags: list[str]
     source: str
     active: bool
     created_at: datetime
@@ -51,6 +53,7 @@ class MedicationUpdate(BaseModel):
     dose: str | None = None
     frequency_hours: int | None = None
     notes: str | None = None
+    tags: list[str] | None = None
     active: bool | None = None
 
 
