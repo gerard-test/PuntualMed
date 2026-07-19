@@ -13,7 +13,6 @@ from app.meds.schemas import (
     MedicationCreate,
     MedicationRead,
     MedicationUpdate,
-    PrescriptionMedication,
     ScheduleCreate,
     ScheduleRead,
     ScheduleRecalculate,
@@ -28,23 +27,22 @@ _NOT_FOUND = HTTPException(
     status_code=status.HTTP_404_NOT_FOUND, detail="medication not found"
 )
 
-
-def get_medication_service(db: AsyncSession = Depends(get_db)) -> MedicationService:
-    return MedicationService(MedicationRepository(db))
-
+# Inyectamos el IntakeService en el MedicationService aquí
+def get_medication_service(
+    db: AsyncSession = Depends(get_db),
+    intake_service: IntakeService = Depends(get_intake_service)
+) -> MedicationService:
+    return MedicationService(MedicationRepository(db), intake_service)
 
 @router.post("", response_model=MedicationRead, status_code=status.HTTP_201_CREATED)
 async def create_medication(
     data: MedicationCreate,
     current: CurrentUser = Depends(get_current_user),
     service: MedicationService = Depends(get_medication_service),
-    intake_service: IntakeService = Depends(get_intake_service),
 ) -> MedicationRead:
+    # La generación de tomas ocurre automáticamente dentro de service.create
     medication = await service.create(current.id, data)
-    # Genera las tomas del tratamiento en la misma sesion/transaccion
-    await intake_service.generate_for_medication(medication)
     return MedicationRead.model_validate(medication)
-
 
 @router.post(
     "/from-recipe",
@@ -57,7 +55,6 @@ async def create_medications_from_recipe(
     duration_days: int | None = None,
     current: CurrentUser = Depends(get_current_user),
     service: MedicationService = Depends(get_medication_service),
-    intake_service: IntakeService = Depends(get_intake_service),
     ai_service: AiService = Depends(get_ai_service),
 ) -> list[MedicationRead]:
     image_bytes = await file.read()
@@ -67,34 +64,28 @@ async def create_medications_from_recipe(
     if not extracted:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="No se pudieron extraer medicamentos de la imagen. Intenta con una receta más clara o ingrésalos manualmente.",
+            detail="No se pudieron extraer medicamentos de la imagen.",
         )
 
     created: list[MedicationRead] = []
     for item in extracted:
         name = str(item.get("name") or "").strip()
         dose = str(item.get("dose") or "").strip()
-        if not name or not dose:
-            continue
+        if not name or not dose: continue
 
         schedules = item.get("schedules") or []
-        if isinstance(schedules, str):
-            schedules = [schedules]
         payload = MedicationCreate(
             name=name,
             dose=dose,
             start_date=item.get("start_date") or start_date or date.today(),
             duration_days=int(item.get("duration_days") or duration_days or 7),
             frequency_hours=item.get("frequency_hours"),
+            tags=item.get("tags") or [],
             notes=item.get("notes"),
-            schedules=[
-                ScheduleCreate(time_of_day=schedule)
-                for schedule in schedules
-                if isinstance(schedule, str) and schedule.strip()
-            ],
+            schedules=[ScheduleCreate(time_of_day=s) for s in schedules if isinstance(s, str) and s.strip()],
         )
+        # service.create ya genera las tomas automáticamente
         medication = await service.create(current.id, payload)
-        await intake_service.generate_for_medication(medication)
         created.append(MedicationRead.model_validate(medication))
     return created
 
