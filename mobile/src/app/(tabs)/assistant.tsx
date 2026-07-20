@@ -23,7 +23,7 @@ export default function Assistant() {
     {
       id: "welcome",
       sender: "ai",
-      text: "Hola María, soy tu asistente PuntualMed. Puedo ayudarte a revisar tu tratamiento, consultar efectos secundarios registrados o analizar cómo has seguido tus medicamentos.",
+      text: "Hola, soy tu asistente PuntualMed. Puedo ayudarte a revisar tu tratamiento, consultar efectos secundarios registrados o analizar cómo has seguido tus medicamentos.",
       timestamp: "8:41 AM",
     }
   ]);
@@ -67,6 +67,7 @@ export default function Assistant() {
     setError(null);
 
     try {
+      // Petición al endpoint del backend (/api/ai/symptoms/analyze)
       const response: AiMessage = await analyzeSymptoms(symptomId);
       
       const aiMsg: ChatMessage = {
@@ -244,7 +245,7 @@ export default function Assistant() {
             inputText.trim() ? "bg-[#1E3A8A]" : "bg-gray-300"
           }`}
         >
-          {/* Icono de Enviar (Triángulo estilizado) */}
+          {/* Icono de Enviar */}
           <Text className="text-white text-base font-bold">➔</Text>
         </Pressable>
       </View>
