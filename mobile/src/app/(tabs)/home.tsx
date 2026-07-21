@@ -11,16 +11,35 @@ import { adherence, formatTime, nextPendingIntake, todaysMeds } from "@/lib/home
 // Iconos nativos compatibles para sustituir lucide-react web
 import { Bell, User, Activity, Bot, CheckCircle2, Clock } from "lucide-react-native";
 
-// Mock para el minicalendario semanal
-const weekDays = [
-  { day: 'Lun', num: 9, taken: true, missed: false, symptom: false },
-  { day: 'Mar', num: 10, taken: true, missed: false, symptom: true },
-  { day: 'Mié', num: 11, taken: true, missed: true, symptom: false },
-  { day: 'Jue', num: 12, taken: false, missed: true, symptom: false },
-  { day: 'Vie', num: 13, taken: true, missed: false, symptom: false },
-  { day: 'Sáb', num: 14, taken: true, missed: false, symptom: false },
-  { day: 'Dom', num: 15, taken: false, missed: false, symptom: false },
-];
+// Función para generar los días de la semana actual de forma dinámica
+function getDynamicWeekDays() {
+  const now = new Date();
+  const currentDayOfWeek = now.getDay(); // 0: Dom, 1: Lun, ... 6: Sáb
+  
+  // Calcular la fecha del Lunes de esta semana
+  const distanceToMonday = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - distanceToMonday);
+
+  const daysLabel = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+
+  return daysLabel.map((dayLabel, index) => {
+    const dayDate = new Date(monday);
+    dayDate.setDate(monday.getDate() + index);
+
+    const isToday = dayDate.toDateString() === now.toDateString();
+
+    return {
+      day: dayLabel,
+      num: dayDate.getDate(),
+      isToday,
+      // Se pueden vincular con datos reales según se requiera
+      taken: isToday ? true : index < distanceToMonday, 
+      missed: false, 
+      symptom: false 
+    };
+  });
+}
 
 function isoDate(offsetDays: number): string {
   const d = new Date();
@@ -42,6 +61,9 @@ export default function Home() {
   const { session } = useAuth();
   const { data, error, loading, reload } = useAsync(loadHome);
   const greetName = data?.me.full_name ?? session?.user?.email ?? "Usuario";
+
+  // Generamos los días dinámicos de esta semana
+  const weekDays = getDynamicWeekDays();
 
   // Función para obtener el saludo dinámico según la hora del dispositivo
   const obtenerSaludo = () => {
@@ -81,10 +103,9 @@ export default function Home() {
 
   return (
     <View className="flex-1 bg-[#F3F4F6]">
-      {/* Header Corregido (Eliminada altura fija h-16, añadido py-3 e items-center robusto) */}
+      {/* Header */}
       <View className="bg-white flex-row items-center justify-between px-4 py-3 border-b border-gray-100">
         <View className="flex-row items-center gap-3 flex-1 mr-2">
-          {/* Logo circular corregido con 3 niveles hacia atrás */}
           <View className="w-10 h-10 rounded-full bg-white justify-center items-center p-0.5 border border-gray-200">
             <Image 
               source={require("../../../assets/images/logo.png")} 
@@ -187,7 +208,7 @@ export default function Home() {
           </ScrollView>
         </View>
 
-        {/* Esta semana Mini Calendar */}
+        {/* Esta semana Mini Calendar Dinámico */}
         <View>
           <Text className="text-[#1E293B] font-semibold mb-3 text-base">Esta semana</Text>
           <View className="bg-white rounded-2xl p-4 shadow-sm">
@@ -197,11 +218,11 @@ export default function Home() {
                   key={d.day}
                   onPress={() => router.push("/calendar")}
                   className={`flex-1 items-center py-2 rounded-xl ${
-                    d.num === 14 ? 'bg-[#1E3A8A]' : 'bg-transparent'
+                    d.isToday ? 'bg-[#1E3A8A]' : 'bg-transparent'
                   }`}
                 >
-                  <Text className={`text-[10px] mb-1.5 ${d.num === 14 ? 'text-white/70' : 'text-[#6B7280]'}`}>{d.day}</Text>
-                  <Text className={`font-semibold mb-1.5 text-sm ${d.num === 14 ? 'text-white' : 'text-[#1E293B]'}`}>{d.num}</Text>
+                  <Text className={`text-[10px] mb-1.5 ${d.isToday ? 'text-white/70' : 'text-[#6B7280]'}`}>{d.day}</Text>
+                  <Text className={`font-semibold mb-1.5 text-sm ${d.isToday ? 'text-white' : 'text-[#1E293B]'}`}>{d.num}</Text>
                   <View className="flex-col gap-0.5 h-5 justify-center">
                     {d.taken && <View className="w-1.5 h-1.5 rounded-full bg-[#34D399]" />}
                     {d.missed && <View className="w-1.5 h-1.5 rounded-full bg-[#EF4444]" />}
