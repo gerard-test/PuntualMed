@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
-import { Picker } from "@react-native-picker/picker"; // Importación del selector nativo
+import { Picker } from "@react-native-picker/picker";
 import { useAsync } from "@/lib/use-async";
 import { listSymptoms } from "@/lib/symptoms-api";
 import { listMedications } from "@/lib/meds-api";
@@ -20,7 +20,7 @@ export default function Symptoms() {
 
   // Estados de filtrado y diseño
   const [filter, setFilter] = useState<FilterType>("all");
-  const [selectedMed, setSelectedMed] = useState<string>("all"); // Estado para filtrar por medicamento
+  const [selectedMed, setSelectedMed] = useState<string>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useFocusEffect(
@@ -32,16 +32,29 @@ export default function Symptoms() {
   const medName = (id: string | null) =>
     id ? (data?.meds.find((m) => m.id === id)?.name ?? null) : null;
 
-  // Lógica de filtrado combinado de síntomas
+  // Lógica de filtrado combinado (Medicamento + Rango de Fechas)
   const filteredSymptoms = (data?.symptoms ?? []).filter((symptom) => {
     // 1. Filtrar por medicamento seleccionado
     if (selectedMed !== "all" && symptom.medication_id !== selectedMed) {
       return false;
     }
-    
-    // 2. Aquí puedes añadir las condiciones temporales si las implementas a futuro:
-    // if (filter === 'week') { ... }
-    
+
+    // 2. Filtrar por fecha (Esta semana / Este mes)
+    if (filter !== "all" && symptom.occurred_at) {
+      const symptomDate = new Date(symptom.occurred_at);
+      const now = new Date();
+
+      if (filter === "week") {
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(now.getDate() - 7);
+        if (symptomDate < oneWeekAgo) return false;
+      } else if (filter === "month") {
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(now.getMonth() - 1);
+        if (symptomDate < oneMonthAgo) return false;
+      }
+    }
+
     return true;
   });
 
@@ -51,12 +64,14 @@ export default function Symptoms() {
       <View className="flex-row items-center justify-between bg-white px-4 py-4 border-b border-[#E5E7EB]">
         <View className="w-6" />
         <Text className="text-xl font-bold text-[#1E293B]">Mis síntomas</Text>
+
+        {/* NAVEGACIÓN A REGISTRAR SÍNTOMA */}
         <Pressable 
           accessibilityRole="button" 
           onPress={() => router.push("/register-symptom")}
-          className="p-1"
+          className="p-1 min-w-[32px] items-center"
         >
-          <Text className="text-2xl font-semibold text-[#1E3A8A]">+</Text>
+          <Text className="text-2xl font-bold text-[#1E3A8A]">+</Text>
         </Pressable>
       </View>
 
