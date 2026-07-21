@@ -17,7 +17,7 @@ type Props = {
   onDayPress?: (date: string) => void;
 };
 
-const weekDays = ["L", "M", "M", "J", "V", "S", "D"];
+const weekDays = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
 // Fecha local YYYY-MM-DD (evita el desfase de día que introduce toISOString()
 // en zonas horarias negativas, ej. Ecuador UTC-5).
@@ -31,53 +31,24 @@ export default function MonthlyCalendar({
   data = [],
   onDayPress,
 }: Props) {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const today = new Date();
 
-  const year = currentMonth.getFullYear();
-  const month = currentMonth.getMonth();
+  // Genera exclusivamente los 7 días de la semana actual (de Lunes a Domingo)
+  const currentWeek = useMemo(() => {
+    const dayOfWeek = today.getDay(); // 0 es Domingo
+    const distanceToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
 
-  const monthName = currentMonth.toLocaleDateString("es-ES", {
-    month: "long",
-    year: "numeric",
-  });
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + distanceToMonday);
 
-  const days = useMemo(() => {
-    const firstDay = new Date(year, month, 1);
-
-    const lastDay = new Date(year, month + 1, 0);
-
-    const firstWeekDay = firstDay.getDay();
-
-    const totalDays = lastDay.getDate();
-
-    const calendar = [];
-
-    const offset = firstWeekDay === 0 ? 6 : firstWeekDay - 1;
-
-    for (let i = 0; i < offset; i++) {
-      calendar.push(null);
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      days.push(d);
     }
-
-    for (let day = 1; day <= totalDays; day++) {
-      calendar.push(
-        new Date(year, month, day)
-      );
-    }
-
-    return calendar;
-  }, [month, year]);
-
-  function previousMonth() {
-    setCurrentMonth(
-      new Date(year, month - 1, 1)
-    );
-  }
-
-  function nextMonth() {
-    setCurrentMonth(
-      new Date(year, month + 1, 1)
-    );
-  }
+    return days;
+  }, []);
 
   function statusColor(date: Date) {
     const iso = localIso(date);
@@ -97,83 +68,30 @@ export default function MonthlyCalendar({
         return "#F59E0B";
 
       default:
-        return "#CBD5E1";
+        return "transparent";
     }
   }
-
-  const today = new Date();
 
   return (
     <View className="bg-white rounded-3xl p-5 shadow-sm">
 
-      {/* HEADER */}
+      {/* HEADER / TÍTULO */}
 
-      <View className="flex-row items-center justify-between mb-5">
+      <Text className="text-base font-bold text-slate-800 mb-4">
+        Esta semana
+      </Text>
 
-        <Pressable
-          onPress={previousMonth}
-          className="w-10 h-10 rounded-full bg-slate-100 items-center justify-center"
-        >
-          <ChevronLeft
-            color="#1E293B"
-            size={20}
-          />
-        </Pressable>
-
-        <Text className="text-lg font-bold capitalize text-slate-900">
-
-          {monthName}
-
-        </Text>
-
-        <Pressable
-          onPress={nextMonth}
-          className="w-10 h-10 rounded-full bg-slate-100 items-center justify-center"
-        >
-          <ChevronRight
-            color="#1E293B"
-            size={20}
-          />
-        </Pressable>
-
-      </View>
-
-      {/* DÍAS */}
+      {/* DÍAS Y DÍAS DEL MES */}
 
       <View className="flex-row justify-between mb-4">
 
-        {weekDays.map((day, index) => (
-
-          <Text
-            key={`${day}-${index}`}
-            className="w-10 text-center text-slate-500 font-semibold"
-          >
-            {day}
-          </Text>
-
-        ))}
-
-      </View>
-
-      {/* CALENDARIO */}
-
-      <View className="flex-row flex-wrap">
-
-        {days.map((date, index) => {
-
-          if (!date) {
-            return (
-              <View
-                key={index}
-                className="w-[14.28%] h-14"
-              />
-            );
-          }
-
+        {currentWeek.map((date, index) => {
           const isToday =
             date.getDate() === today.getDate() &&
             date.getMonth() === today.getMonth() &&
             date.getFullYear() === today.getFullYear();
+
+          const dotColor = statusColor(date);
 
           return (
             <Pressable
@@ -183,36 +101,37 @@ export default function MonthlyCalendar({
                   localIso(date)
                 )
               }
-              className="w-[14.28%] h-16 items-center justify-center"
+              className={`w-11 py-2 items-center rounded-2xl ${
+                isToday ? "bg-[#1E3A8A]" : "bg-transparent"
+              }`}
             >
-
-              <View
-                className={`w-10 h-10 rounded-full items-center justify-center ${
-                  isToday
-                    ? "bg-[#1E3A8A]"
-                    : ""
+              {/* Día abreviado (Lun, Mar, etc.) */}
+              <Text
+                className={`text-xs mb-1 font-medium ${
+                  isToday ? "text-slate-200" : "text-slate-400"
                 }`}
               >
+                {weekDays[index]}
+              </Text>
 
-                <Text
-                  className={`font-semibold ${
-                    isToday
-                      ? "text-white"
-                      : "text-slate-900"
-                  }`}
-                >
-                  {date.getDate()}
-                </Text>
+              {/* Número del día */}
+              <Text
+                className={`text-base font-bold ${
+                  isToday ? "text-white" : "text-slate-800"
+                }`}
+              >
+                {date.getDate()}
+              </Text>
 
+              {/* Punto indicador de estado */}
+              <View className="h-2 justify-center items-center mt-2">
+                <View
+                  style={{
+                    backgroundColor: dotColor,
+                  }}
+                  className="w-2 h-2 rounded-full"
+                />
               </View>
-
-              <View
-                style={{
-                  backgroundColor:
-                    statusColor(date),
-                }}
-                className="w-2 h-2 rounded-full mt-1"
-              />
 
             </Pressable>
           );
@@ -222,15 +141,15 @@ export default function MonthlyCalendar({
 
       {/* LEYENDA */}
 
-      <View className="mt-5 pt-4 border-t border-slate-100">
+      <View className="pt-3 border-t border-slate-100">
 
-        <View className="flex-row justify-between">
+        <View className="flex-row justify-center space-x-4">
 
-          <View className="flex-row items-center">
+          <View className="flex-row items-center mr-3">
 
-            <View className="w-2 h-2 rounded-full bg-green-500 mr-2"/>
+            <View className="w-2 h-2 rounded-full bg-green-500 mr-1.5"/>
 
-            <Text className="text-xs text-slate-500">
+            <Text className="text-xs text-slate-500 font-medium">
 
               Tomado
 
@@ -238,11 +157,11 @@ export default function MonthlyCalendar({
 
           </View>
 
-          <View className="flex-row items-center">
+          <View className="flex-row items-center mr-3">
 
-            <View className="w-2 h-2 rounded-full bg-red-500 mr-2"/>
+            <View className="w-2 h-2 rounded-full bg-red-500 mr-1.5"/>
 
-            <Text className="text-xs text-slate-500">
+            <Text className="text-xs text-slate-500 font-medium">
 
               Omitido
 
@@ -252,9 +171,9 @@ export default function MonthlyCalendar({
 
           <View className="flex-row items-center">
 
-            <View className="w-2 h-2 rounded-full bg-amber-400 mr-2"/>
+            <View className="w-2 h-2 rounded-full bg-amber-400 mr-1.5"/>
 
-            <Text className="text-xs text-slate-500">
+            <Text className="text-xs text-slate-500 font-medium">
 
               Síntoma
 
