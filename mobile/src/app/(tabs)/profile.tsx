@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
@@ -20,6 +20,13 @@ export default function Profile() {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [notice, setNotice] = useState<string | null>(null);
+
+  // Recargar datos automáticamente al enfocar la pantalla
+  useFocusEffect(
+    useCallback(() => {
+      reload();
+    }, [reload])
+  );
 
   // Precarga el nombre actual cuando llega el perfil.
   useEffect(() => {
@@ -59,10 +66,12 @@ export default function Profile() {
     <ScrollView className="flex-1 bg-surface" contentContainerClassName="gap-4 p-4">
       <ScreenHeader title="Perfil" />
       
-      {/* Muestra el Nombre dinámico y el correo abajo */}
+      {/* Muestra el Nombre dinámico (del backend o el actual del input) y el correo abajo */}
       <View className="px-1">
-        {data?.full_name ? (
-          <Text className="font-sans font-bold text-lg text-primary">{data.full_name}</Text>
+        {(data?.full_name || name) ? (
+          <Text className="font-sans font-bold text-lg text-primary">
+            {data?.full_name || name}
+          </Text>
         ) : null}
         <Text className="font-sans text-muted text-sm">{session?.user?.email}</Text>
       </View>
