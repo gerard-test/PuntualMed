@@ -37,10 +37,30 @@ export async function apiRequest<T>(
     headers,
     body: options.body ? JSON.stringify(options.body) : undefined,
   });
+
   const text = await response.text();
-  const data = text ? JSON.parse(text) : null;
-  if (!response.ok) {
-    throw new ApiError(response.status, `Request failed: ${response.status}`, data);
+  let data: unknown = null;
+
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = text;
+    }
   }
+
+  if (!response.ok) {
+    console.error(`[API Error ${response.status}]:`, data);
+
+    const errorMessage =
+      typeof data === "object" && data !== null && "detail" in data
+        ? String((data as { detail: unknown }).detail)
+        : typeof data === "string"
+          ? data
+          : `Request failed: ${response.status}`;
+
+    throw new ApiError(response.status, errorMessage, data);
+  }
+
   return data as T;
 }
