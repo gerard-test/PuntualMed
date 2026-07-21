@@ -23,7 +23,7 @@ export default function Assistant() {
     {
       id: "welcome",
       sender: "ai",
-      text: "Hola María, soy tu asistente PuntualMed. Puedo ayudarte a revisar tu tratamiento, consultar efectos secundarios registrados o analizar cómo has seguido tus medicamentos.",
+      text: "Hola Amig@, soy tu asistente PuntualMed. Puedo ayudarte a revisar tu tratamiento, consultar efectos secundarios registrados o analizar cómo has seguido tus medicamentos.",
       timestamp: "8:41 AM",
     }
   ]);
