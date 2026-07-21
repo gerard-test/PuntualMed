@@ -137,7 +137,7 @@ export default function Assistant() {
         </View>
 
         <View className="flex-1">
-          <Text className="text-[#1E293B] font-semibold text-[15px]">PuntualMed IA</Text>
+          <Text className="text-[#1E293B] font-semibold text-[15px]">PuntualMed ASISTENTE DE IA</Text>
           <View className="flex-row items-center gap-1 mt-0.5">
             <View className="w-1.5 h-1.5 rounded-full bg-[#34D399]" />
             <Text className="text-[#6B7280] text-[11px]">En línea</Text>
