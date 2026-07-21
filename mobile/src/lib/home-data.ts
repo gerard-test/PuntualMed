@@ -16,16 +16,6 @@ function doseStatus(intake: Intake, now: Date): DoseStatus {
   return "pending";
 }
 
-// Hora local en formato 12h (ej. "9:00 AM").
-export function formatTime(iso: string): string {
-  const d = new Date(iso);
-  const hours = d.getHours();
-  const minutes = d.getMinutes().toString().padStart(2, "0");
-  const period = hours < 12 ? "AM" : "PM";
-  const hour12 = hours % 12 === 0 ? 12 : hours % 12;
-  return `${hour12}:${minutes} ${period}`;
-}
-
 function medById(meds: Medication[]): Map<string, Medication> {
   return new Map(meds.map((m) => [m.id, m]));
 }
@@ -47,19 +37,11 @@ export function nextDose(
   const next = upcoming[0];
   if (!next) return null;
   const med = byId.get(next.medication_id)!;
-return {
-
-    //id: next.id,
-
+  return {
     name: med.name,
-
     dose: med.dose,
-
-    //scheduledAt: next.scheduled_at,
-
     time: formatTime(next.scheduled_at),
-
-}
+  };
 }
 
 export function todaysMeds(intakes: Intake[], meds: Medication[], now: Date): DoseRow[] {
@@ -106,12 +88,6 @@ export function isoDate(d: Date): string {
   const month = `${d.getMonth() + 1}`.padStart(2, "0");
   const day = `${d.getDate()}`.padStart(2, "0");
   return `${d.getFullYear()}-${month}-${day}`;
-}
-
-export function addDays(d: Date, days: number): Date {
-  const copy = new Date(d);
-  copy.setDate(copy.getDate() + days);
-  return copy;
 }
 
 function sameLocalMonth(iso: string, ref: Date): boolean {
