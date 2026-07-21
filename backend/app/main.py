@@ -17,22 +17,33 @@ from app.notifications.repository import FamilyContactRepository
 from app.notifications.service import NotificationService
 from app.notifications.telegram import TelegramClient
 from app.reminders.repository import IntakeRepository
-from app.reminders.worker import mark_missed_intakes
+# Importación actualizada para incluir notify_pending_intakes
+from app.reminders.worker import mark_missed_intakes, notify_pending_intakes
 
 logger = logging.getLogger(__name__)
 
 
-async def run_missed_job() -> None:
-    # Job del scheduler: marca las tomas vencidas, notifica a familiares y persiste.
+async def run_reminder_jobs() -> None:
+    # Job del scheduler unificado: notifica al usuario, marca vencidas y alerta a familiares.
     settings = get_settings()
     session_factory = get_session_factory()
+    
     async with session_factory() as session:
         repo = IntakeRepository(session)
-        await mark_missed_intakes(repo, datetime.now(UTC), settings.missed_grace_minutes)
+        now = datetime.now(UTC)
+        
+        # 1. Notificar al paciente (Push Notification simulada por ahora)
+        await notify_pending_intakes(repo, now)
+        
+        # 2. Marcar tomas como vencidas si pasaron el margen de gracia
+        await mark_missed_intakes(repo, now, settings.missed_grace_minutes)
+        
+        # 3. Alertar a los familiares por Telegram sobre las tomas recién vencidas
         if settings.telegram_bot_token:
             contacts_repo = FamilyContactRepository(session)
             telegram = TelegramClient(settings.telegram_bot_token)
             await send_missed_alerts(repo, contacts_repo, telegram)
+            
         await session.commit()
 
 
@@ -76,8 +87,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     if settings.worker_enabled:
         scheduler = AsyncIOScheduler()
+        # Se actualiza el nombre del job a ejecutar
         scheduler.add_job(
-            run_missed_job, "interval", minutes=settings.missed_scan_interval_minutes
+            run_reminder_jobs, "interval", minutes=settings.missed_scan_interval_minutes
         )
         scheduler.start()
 

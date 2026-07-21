@@ -5,35 +5,26 @@ from fastapi import HTTPException
 from app.meds.models import Medication, MedicationSchedule
 from app.meds.repository import MedicationRepository
 from app.meds.schemas import MedicationCreate, MedicationUpdate, ScheduleCreate
-
+from app.reminders.service import IntakeService 
 
 class MedicationService:
-    def __init__(self, repository: MedicationRepository) -> None:
+    def __init__(self, repository: MedicationRepository, intake_service: IntakeService) -> None:
         self._repository = repository
+        self._intake_service = intake_service
 
     async def validate_safety(
         self, user_id: uuid.UUID, medication_id: uuid.UUID | None, new_schedules: list[time]
     ) -> None:
-        """
-        Verifica si los nuevos horarios colisionan con algún medicamento activo.
-        Si colisiona con un medicamento marcado 'AYUNAS', bloquea la operación.
-        """
         active_meds = await self._repository.list_active_by_user(user_id)
-        
         for med in active_meds:
-            # Si estamos actualizando o recalculando un medicamento existente, ignoramos sus propios horarios antiguos
-            if med.id == medication_id:
-                continue
-            
+            if med.id == medication_id: continue
             for sch in med.schedules:
                 if sch.time_of_day in new_schedules:
-                    # Lógica de seguridad estricta para medicamentos en AYUNAS
                     if med.tags and "AYUNAS" in med.tags:
                         raise HTTPException(
                             status_code=409,
                             detail=f"Conflicto de seguridad médica: El medicamento '{med.name}' requiere administrarse estrictamente en ayunas y de forma aislada a las {sch.time_of_day.strftime('%H:%M')}."
                         )
-
 
     async def create(
         self, user_id: uuid.UUID, data: MedicationCreate
@@ -47,7 +38,6 @@ class MedicationService:
                 detail=f"La fecha de inicio no puede ser anterior a {DIAS_GRACIA} días atrás."
             )
 
-        # 2. Validación de duplicados exactos (mismo nombre y fecha de inicio activos)
         existing = await self._repository.find_active_by_name_and_date(user_id, data.name, data.start_date)
         if existing:
             raise HTTPException(
@@ -55,19 +45,13 @@ class MedicationService:
                 detail=f"Ya tienes un tratamiento activo registrado para '{data.name}' que inicia en la fecha {data.start_date}."
             )
 
-        # 3. Detección de inferencia (si la IA no mandó frecuencia)
         inferred_frequency = data.frequency_hours is None
         frequency = data.frequency_hours if not inferred_frequency else 24
         
-        # 4. Construcción de notas con advertencia si es inferido
         notes = data.notes or ""
         if inferred_frequency:
-            notes = (
-                f"⚠️ NOTA: Horario inferido por IA. Por favor, valide la pauta de tratamiento con su médico. "
-                f"{notes}"
-            )
+            notes = f"⚠️ NOTA: Horario inferido por IA. Por favor, valide la pauta de tratamiento con su médico. {notes}"
 
-        # 5. Lógica de horarios
         if data.schedules and len(data.schedules) > 0:
             schedules_to_add = [
                 MedicationSchedule(id=uuid.uuid4(), time_of_day=s.time_of_day)
@@ -78,10 +62,8 @@ class MedicationService:
                 MedicationSchedule(id=uuid.uuid4(), time_of_day=time(8, 0, 0))
             ]
 
-        # 6. Ejecución del validador de seguridad clínica antes de persistir
         await self.validate_safety(user_id, None, [s.time_of_day for s in schedules_to_add])
 
-        # 7. Construcción del objeto
         end_date = data.start_date + timedelta(days=data.duration_days)
         
         medication = Medication(
@@ -94,11 +76,18 @@ class MedicationService:
             duration_days=data.duration_days,
             end_date=end_date,
             notes=notes,
-            tags=data.tags,  # Almacenamos el array de etiquetas de seguridad
+            tags=data.tags,
             source="ai_inferred" if inferred_frequency else "manual",
             schedules=schedules_to_add,
         )
-        return await self._repository.add(medication)
+        
+        # Guardar en repositorio
+        saved_med = await self._repository.add(medication)
+        
+        # Generar las tomas (IntakeLogs) automáticamente
+        await self._intake_service.generate_for_medication(saved_med)
+        
+        return saved_med
 
     async def list_for_user(self, user_id: uuid.UUID) -> list[Medication]:
         return await self._repository.list_by_user(user_id)
