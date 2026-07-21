@@ -3,6 +3,7 @@ import type { Intake } from "@/lib/intakes-api";
 import type { Medication } from "@/lib/meds-api";
 import type { Symptom } from "@/lib/symptoms-api";
 import type { CalendarDay } from "@/components/ui/home/MonthlyCalendar";
+import { addDays, formatTime } from "@/lib/date-utils";
 
 type DoseStatus = "taken" | "missed" | "pending";
 type DoseRow = { id: string; name: string; dose: string; time: string; status: DoseStatus };
