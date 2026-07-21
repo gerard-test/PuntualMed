@@ -10,12 +10,7 @@ export type Symptom = {
 };
 
 export async function listSymptoms(): Promise<Symptom[]> {
-  try {
-    return await apiRequest<Symptom[]>("/api/v1/symptoms", { token: getAccessToken });
-  } catch (error) {
-    console.error("Error al listar síntomas:", error);
-    return []; // Retorna lista vacía si falla la petición
-  }
+  return apiRequest<Symptom[]>("/api/v1/symptoms", { token: getAccessToken });
 }
 
 export type SymptomInput = {
