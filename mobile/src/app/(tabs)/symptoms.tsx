@@ -63,7 +63,7 @@ export default function Symptoms() {
       {/* ECG DECORATION STRIP */}
       <View className="bg-white border-b border-[#E5E7EB] px-4 py-3 flex-row items-center gap-3">
         <Text className="text-[#E5E7EB] text-xl font-bold tracking-tighter">⚡︎⚡︎⚡︎</Text>
-        <Text className="text-[#9CA3AF] text-xs">Seguimiento de síntomas con IA</Text>
+        <Text className="text-[#9CA3AF] text-xs">Seguimiento de síntomas con Inteligencia artificial</Text>
       </View>
 
       <ScrollView className="flex-1" contentContainerClassName="pb-10">
