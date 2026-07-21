@@ -3,7 +3,7 @@ import { Pressable, ScrollView, Text, View, Image } from "react-native";
 import { useRouter, useFocusEffect } from "expo-router";
 import { useAuth } from "@/lib/auth";
 import { useAsync } from "@/lib/use-async";
-import { confirmIntake, listIntakes, Intake } from "@/lib/intakes-api";
+import { confirmIntake, listIntakes } from "@/lib/intakes-api";
 import { listMedications } from "@/lib/meds-api";
 import { fetchMe } from "@/lib/users-api";
 import { adherence, formatTime, nextPendingIntake, todaysMeds } from "@/lib/home-data";
@@ -11,40 +11,21 @@ import { adherence, formatTime, nextPendingIntake, todaysMeds } from "@/lib/home
 // Iconos nativos compatibles para sustituir lucide-react web
 import { Bell, User, Activity, Bot, CheckCircle2, Clock } from "lucide-react-native";
 
+// Mock para el minicalendario semanal
+const weekDays = [
+  { day: 'Lun', num: 9, taken: true, missed: false, symptom: false },
+  { day: 'Mar', num: 10, taken: true, missed: false, symptom: true },
+  { day: 'Mié', num: 11, taken: true, missed: true, symptom: false },
+  { day: 'Jue', num: 12, taken: false, missed: true, symptom: false },
+  { day: 'Vie', num: 13, taken: true, missed: false, symptom: false },
+  { day: 'Sáb', num: 14, taken: true, missed: false, symptom: false },
+  { day: 'Dom', num: 15, taken: false, missed: false, symptom: false },
+];
+
 function isoDate(offsetDays: number): string {
   const d = new Date();
   d.setDate(d.getDate() + offsetDays);
   return d.toISOString().slice(0, 10);
-}
-
-// Función para generar dinámicamente los 7 días alrededor de la fecha actual
-function getDynamicWeek(intakes: Intake[] = []) {
-  const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-  const today = new Date();
-  const week = [];
-
-  // Muestra 3 días antes, el día de hoy, y 3 días después
-  for (let i = -3; i <= 3; i++) {
-    const d = new Date();
-    d.setDate(today.getDate() + i);
-    const dateStr = d.toISOString().slice(0, 10);
-
-    // Filtra las tomas correspondientes a esta fecha
-    const dayIntakes = intakes.filter((it) => it.scheduled_at?.startsWith(dateStr));
-    const taken = dayIntakes.length > 0 && dayIntakes.every((it) => it.status === "taken");
-    const missed = dayIntakes.some((it) => it.status === "missed" || it.status === "pending");
-
-    week.push({
-      dayStr: dateStr,
-      dayName: dayNames[d.getDay()],
-      num: d.getDate(),
-      isToday: i === 0,
-      taken,
-      missed,
-      symptom: false, // reservado para registros de síntomas futuros
-    });
-  }
-  return week;
 }
 
 async function loadHome() {
@@ -61,9 +42,6 @@ export default function Home() {
   const { session } = useAuth();
   const { data, error, loading, reload } = useAsync(loadHome);
   const greetName = data?.me.full_name ?? session?.user?.email ?? "Usuario";
-
-  // Genera el minicalendario dinámico con base en las tomas recibidas
-  const weekDays = getDynamicWeek(data?.intakes ?? []);
 
   // Función para obtener el saludo dinámico según la hora del dispositivo
   const obtenerSaludo = () => {
@@ -103,9 +81,10 @@ export default function Home() {
 
   return (
     <View className="flex-1 bg-[#F3F4F6]">
-      {/* Header Corregido */}
+      {/* Header Corregido (Eliminada altura fija h-16, añadido py-3 e items-center robusto) */}
       <View className="bg-white flex-row items-center justify-between px-4 py-3 border-b border-gray-100">
         <View className="flex-row items-center gap-3 flex-1 mr-2">
+          {/* Logo circular corregido con 3 niveles hacia atrás */}
           <View className="w-10 h-10 rounded-full bg-white justify-center items-center p-0.5 border border-gray-200">
             <Image 
               source={require("../../../assets/images/logo.png")} 
@@ -208,21 +187,21 @@ export default function Home() {
           </ScrollView>
         </View>
 
-        {/* Esta semana Mini Calendar Dinámico */}
+        {/* Esta semana Mini Calendar */}
         <View>
           <Text className="text-[#1E293B] font-semibold mb-3 text-base">Esta semana</Text>
           <View className="bg-white rounded-2xl p-4 shadow-sm">
             <View className="flex-row justify-between gap-1">
               {weekDays.map((d) => (
                 <Pressable
-                  key={d.dayStr}
+                  key={d.day}
                   onPress={() => router.push("/calendar")}
                   className={`flex-1 items-center py-2 rounded-xl ${
-                    d.isToday ? 'bg-[#1E3A8A]' : 'bg-transparent'
+                    d.num === 14 ? 'bg-[#1E3A8A]' : 'bg-transparent'
                   }`}
                 >
-                  <Text className={`text-[10px] mb-1.5 ${d.isToday ? 'text-white/70' : 'text-[#6B7280]'}`}>{d.dayName}</Text>
-                  <Text className={`font-semibold mb-1.5 text-sm ${d.isToday ? 'text-white' : 'text-[#1E293B]'}`}>{d.num}</Text>
+                  <Text className={`text-[10px] mb-1.5 ${d.num === 14 ? 'text-white/70' : 'text-[#6B7280]'}`}>{d.day}</Text>
+                  <Text className={`font-semibold mb-1.5 text-sm ${d.num === 14 ? 'text-white' : 'text-[#1E293B]'}`}>{d.num}</Text>
                   <View className="flex-col gap-0.5 h-5 justify-center">
                     {d.taken && <View className="w-1.5 h-1.5 rounded-full bg-[#34D399]" />}
                     {d.missed && <View className="w-1.5 h-1.5 rounded-full bg-[#EF4444]" />}
