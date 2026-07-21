@@ -1,12 +1,11 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "@/theme/colors";
-import { SafeAreaView } from "react-native-safe-area-context"; // <-- Importación añadida
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function TabsLayout() {
   return (
-    // SafeAreaView envuelve todo para empujar el contenido debajo de la hora del celular
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#F8F9FA" }}> 
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#F8F9FA" }} edges={["top"]}> 
       <Tabs
         screenOptions={{
           headerShown: false,
@@ -59,6 +58,8 @@ export default function TabsLayout() {
             ),
           }}
         />
+
+        {/* RUTAS OCULTAS DEL TAB BAR */}
         <Tabs.Screen name="profile" options={{ href: null }} />
         <Tabs.Screen name="add-medication" options={{ href: null }} />
         <Tabs.Screen name="medication-detail" options={{ href: null }} />
