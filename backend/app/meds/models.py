@@ -11,6 +11,7 @@ from sqlalchemy import (
     Time,
     Uuid,
     func,
+    ARRAY,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -18,7 +19,6 @@ from app.db.base import Base
 
 
 class Medication(Base):
-    # Medicamento de un usuario; end_date es derivado (start_date + duration_days)
     __tablename__ = "medications"
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
@@ -30,6 +30,7 @@ class Medication(Base):
     duration_days: Mapped[int] = mapped_column(Integer)
     end_date: Mapped[date] = mapped_column(Date)
     notes: Mapped[str | None] = mapped_column(String)
+    tags: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
     source: Mapped[str] = mapped_column(String, default="manual")
     active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(
@@ -43,7 +44,6 @@ class Medication(Base):
 
 
 class MedicationSchedule(Base):
-    # Hora de toma asociada a un medicamento
     __tablename__ = "medication_schedules"
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)

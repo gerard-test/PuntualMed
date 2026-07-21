@@ -65,6 +65,7 @@ export default function Assistant() {
     setError(null);
 
     try {
+      // Petición al endpoint del backend (/api/ai/symptoms/analyze)
       const response: AiMessage = await analyzeSymptoms(symptomId);
       
       const aiMsg: ChatMessage = {
@@ -261,7 +262,7 @@ export default function Assistant() {
             inputText.trim() ? "bg-[#1E3A8A]" : "bg-gray-300"
           }`}
         >
-          {/* Icono de Enviar (Triángulo estilizado) */}
+          {/* Icono de Enviar */}
           <Text className="text-white text-base font-bold">➔</Text>
         </Pressable>
       </View>
