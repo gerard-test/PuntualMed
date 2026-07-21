@@ -1,13 +1,30 @@
-import { useCallback } from "react";
-import { Pressable, ScrollView, Text, View, Image } from "react-native";
+import { useCallback, useMemo } from "react";
+import { ScrollView, Text, View } from "react-native";
 import { useRouter, useFocusEffect } from "expo-router";
 import { useAuth } from "@/lib/auth";
 import { useAsync } from "@/lib/use-async";
 import { confirmIntake, listIntakes } from "@/lib/intakes-api";
 import { listMedications } from "@/lib/meds-api";
+import { listSymptoms } from "@/lib/symptoms-api";
 import { fetchMe } from "@/lib/users-api";
-import { adherence, formatTime, nextPendingIntake, todaysMeds } from "@/lib/home-data";
+import {
+  addDays,
+  formatTime,
+  monthRange,
+  monthSummary,
+  monthlyAdherence,
+  monthlyCalendarData,
+  nextPendingIntake,
+  todaysMeds,
+} from "@/lib/home-data";
+import Header from "@/components/ui/home/Header";
+import NextMedicationCard from "@/components/ui/home/NextMedicationCard";
+import TodayMedications from "@/components/ui/home/TodayMedications";
+import MonthlyCalendar from "@/components/ui/home/MonthlyCalendar";
+import MonthlySummary from "@/components/ui/home/MonthlySummary";
+import AdherenceCard from "@/components/ui/home/AdherenceCard";
 
+<<<<<<< HEAD
 // Iconos nativos compatibles para sustituir lucide-react web
 import { Bell, User, Activity, Bot, CheckCircle2, Clock } from "lucide-react-native";
 
@@ -45,15 +62,35 @@ function isoDate(offsetDays: number): string {
   const d = new Date();
   d.setDate(d.getDate() + offsetDays);
   return d.toISOString().slice(0, 10);
+=======
+// Rango de datos a traer: desde el 1° del mes anterior (para el comparativo de
+// adherencia) hasta una semana después de fin del mes actual (para no perder
+// la "próxima toma" cuando cae justo a inicios del mes siguiente).
+function loadRange(now: Date) {
+  const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const { from } = monthRange(prevMonth);
+  const { to } = monthRange(now);
+  return { from, to: monthRange(addDays(new Date(to), 7)).from };
+>>>>>>> 730796d629f822288d9da3dfd2cf7b90e676791f
 }
 
 async function loadHome() {
-  const [intakes, meds, me] = await Promise.all([
-    listIntakes({ from: isoDate(-7), to: isoDate(7) }),
+  const now = new Date();
+  const { from, to } = loadRange(now);
+  const [intakes, meds, symptoms, me] = await Promise.all([
+    listIntakes({ from, to }),
     listMedications(),
+    listSymptoms(),
     fetchMe(),
   ]);
-  return { intakes, meds, me };
+  return { intakes, meds, symptoms, me };
+}
+
+function greetingByHour(): string {
+  const hour = new Date().getHours();
+  if (hour >= 6 && hour < 12) return "Buenos días";
+  if (hour >= 12 && hour < 19) return "Buenas tardes";
+  return "Buenas noches";
 }
 
 export default function Home() {
@@ -62,6 +99,7 @@ export default function Home() {
   const { data, error, loading, reload } = useAsync(loadHome);
   const greetName = data?.me.full_name ?? session?.user?.email ?? "Usuario";
 
+<<<<<<< HEAD
   // Generamos los días dinámicos de esta semana
   const weekDays = getDynamicWeekDays();
 
@@ -77,6 +115,8 @@ export default function Home() {
     }
   };
 
+=======
+>>>>>>> 730796d629f822288d9da3dfd2cf7b90e676791f
   useFocusEffect(
     useCallback(() => {
       reload();
@@ -84,17 +124,36 @@ export default function Home() {
   );
 
   const now = new Date();
+
   const upcoming = data ? nextPendingIntake(data.intakes, now) : null;
   const upcomingMed = upcoming
     ? (data!.meds.find((m) => m.id === upcoming.medication_id) ?? null)
     : null;
   const todayMedsList = data ? todaysMeds(data.intakes, data.meds, now) : [];
-  const stats = data ? adherence(data.intakes, now) : null;
+  const calendarData = data ? monthlyCalendarData(data.intakes, data.symptoms, now) : [];
+  const summary = data ? monthSummary(data.intakes, data.symptoms, now) : null;
+  const adherenceStats = data ? monthlyAdherence(data.intakes, now) : null;
+
+  const adherenceDifference = useMemo(() => {
+    if (!data || !adherenceStats) return 0;
+    const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const previous = monthlyAdherence(data.intakes, prevMonth);
+    return adherenceStats.percentage - previous.percentage;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, adherenceStats]);
 
   const goProfile = useCallback(() => router.push("/profile"), [router]);
   const goNotifications = useCallback(() => router.push("/notifications"), [router]);
-  const goRegisterSymptom = useCallback(() => router.push("/register-symptom"), [router]);
-  const goAIChat = useCallback(() => router.push("/assistant"), [router]);
+  const goCalendar = useCallback(() => router.push("/calendar"), [router]);
+  const goMedication = useCallback(
+    (intakeId: string) => {
+      const intake = data?.intakes.find((i) => i.id === intakeId);
+      if (intake) {
+        router.push({ pathname: "/medication-detail", params: { id: intake.medication_id } });
+      }
+    },
+    [data, router],
+  );
 
   async function onConfirm(id: string) {
     await confirmIntake(id);
@@ -102,6 +161,7 @@ export default function Home() {
   }
 
   return (
+<<<<<<< HEAD
     <View className="flex-1 bg-[#F3F4F6]">
       {/* Header */}
       <View className="bg-white flex-row items-center justify-between px-4 py-3 border-b border-gray-100">
@@ -131,83 +191,51 @@ export default function Home() {
           </Pressable>
         </View>
       </View>
+=======
+    <View className="flex-1 bg-[#F8FAFC]">
+      <Header
+        greeting={greetingByHour()}
+        name={greetName}
+        onNotifications={goNotifications}
+        onProfile={goProfile}
+      />
+>>>>>>> 730796d629f822288d9da3dfd2cf7b90e676791f
 
-      {/* Estado de Carga / Error */}
       {loading && <Text className="text-center text-xs text-muted my-1">Actualizando datos...</Text>}
       {error && <Text className="text-center text-xs text-danger my-1">No se pudo cargar el inicio</Text>}
 
-      {/* Scrollable Content */}
-      <ScrollView className="flex-1" contentContainerClassName="p-4 gap-4 pb-24">
-        
-        {/* Próxima toma card */}
+      <ScrollView className="flex-1" contentContainerClassName="px-5 pb-10">
         {upcoming && upcomingMed ? (
-          <View className="rounded-2xl p-5 bg-[#1E3A8A] relative overflow-hidden">
-            <View className="absolute -right-6 -top-6 w-28 h-28 rounded-full bg-white/10" />
-            <View className="absolute -right-2 bottom-2 w-16 h-16 rounded-full bg-white/5" />
-            
-            <Text className="text-white/70 font-semibold mb-1 text-[11px] tracking-wider">PRÓXIMA TOMA</Text>
-            <Text className="text-white font-bold text-xl mb-0.5">{upcomingMed.name} {upcomingMed.dose}</Text>
-            <Text className="text-white/80 text-[15px] mb-3">Via oral</Text>
-            
-            <View className="flex-row items-end justify-between">
-              <View>
-                <Text className="text-white font-bold text-2xl">{formatTime(upcoming.scheduled_at)}</Text>
-                <Text className="text-white/70 text-xs">Próxima dosis asignada</Text>
-              </View>
-              <Pressable 
-                onPress={() => onConfirm(upcoming.id)}
-                className="bg-white/20 border border-white/30 rounded-2xl px-4 py-2 active:scale-95"
-              >
-                <Text className="text-white font-semibold text-xs">Registrar toma</Text>
-              </Pressable>
-            </View>
-          </View>
+          <NextMedicationCard
+            medication={`${upcomingMed.name} ${upcomingMed.dose}`}
+            dose="Vía oral"
+            hour={formatTime(upcoming.scheduled_at)}
+            onConfirm={() => onConfirm(upcoming.id)}
+          />
         ) : (
-          <View className="rounded-2xl p-5 bg-[#1E3A8A]/80 items-center justify-center">
-            <Text className="text-white font-semibold">No tienes tomas pendientes inmediatas</Text>
+          <View className="mt-4 rounded-3xl bg-[#0B3AAE] p-6 items-center justify-center">
+            <Text className="text-white font-semibold text-base">
+              No tienes tomas pendientes inmediatas
+            </Text>
           </View>
         )}
 
-        {/* Hoy Section (Horizontal Scroll) */}
-        <View>
-          <Text className="text-[#1E293B] font-semibold mb-3 text-base">Hoy</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-2 pb-1">
-            {todayMedsList.length === 0 ? (
-              <View className="bg-white rounded-xl px-4 py-6 border border-[#F3F4F6] w-full items-center">
-                <Text className="text-[#6B7280] text-sm">Sin tomas programadas para hoy</Text>
-              </View>
-            ) : (
-              todayMedsList.map((row) => (
-                <View key={row.id} className="bg-white rounded-xl p-3 border border-[#F3F4F6] shadow-sm min-w-[140px]">
-                  <View className="flex-row items-center gap-1.5 mb-1.5">
-                    <View className="w-5 h-5 rounded-full bg-[#EFF6FF] items-center justify-center">
-                      <View className="w-2 h-2 rounded-full bg-[#1E3A8A]" />
-                    </View>
-                    <Text className="text-[#1E293B] font-semibold text-xs" numberOfLines={1}>{row.name}</Text>
-                  </View>
-                  <Text className="text-[#6B7280] text-[11px] mb-2">{row.dose} · {row.time}</Text>
-                  
-                  <View className={`flex-row items-center gap-1 rounded-full px-2 py-0.5 self-start ${
-                    row.status === 'taken' ? 'bg-[#ECFDF5]' : 'bg-[#FFF7ED]'
-                  }`}>
-                    {row.status === 'taken' ? (
-                      <>
-                        <CheckCircle2 size={10} className="text-[#065F46]" />
-                        <Text className="text-[#065F46] text-[10px]">Tomado</Text>
-                      </>
-                    ) : (
-                      <>
-                        <Clock size={10} className="text-[#92400E]" />
-                        <Text className="text-[#92400E] text-[10px]">Pendiente</Text>
-                      </>
-                    )}
-                  </View>
-                </View>
-              ))
-            )}
-          </ScrollView>
+        <TodayMedications
+          medications={todayMedsList.map((row) => ({
+            id: row.id,
+            name: row.name,
+            dosage: row.dose,
+            hour: row.time,
+            status: row.status,
+          }))}
+          onPressMedication={goMedication}
+        />
+
+        <View className="mt-5">
+          <MonthlyCalendar data={calendarData} onDayPress={goCalendar} />
         </View>
 
+<<<<<<< HEAD
         {/* Esta semana Mini Calendar Dinámico */}
         <View>
           <Text className="text-[#1E293B] font-semibold mb-3 text-base">Esta semana</Text>
@@ -298,7 +326,25 @@ export default function Home() {
             {stats ? `${stats.taken} de ${stats.total} tomas registradas` : "Sin tomas registradas"}
           </Text>
         </View>
+=======
+        {summary && (
+          <MonthlySummary
+            taken={summary.taken}
+            pending={summary.pending}
+            missed={summary.missed}
+            symptoms={summary.symptoms}
+          />
+        )}
+>>>>>>> 730796d629f822288d9da3dfd2cf7b90e676791f
 
+        {adherenceStats && (
+          <AdherenceCard
+            percentage={adherenceStats.percentage}
+            completed={adherenceStats.completed}
+            total={adherenceStats.total}
+            difference={adherenceDifference}
+          />
+        )}
       </ScrollView>
     </View>
   );
