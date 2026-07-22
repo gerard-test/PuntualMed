@@ -1,73 +1,84 @@
-import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { colors } from "@/theme/colors";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Tabs } from "expo-router";
+import React from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export default function TabsLayout() {
+import { HapticTab } from "@/components/haptic-tab";
+import { palette } from "@/constants/puntualmed";
+
+export default function TabLayout() {
+  const insets = useSafeAreaInsets();
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#F8F9FA" }} edges={["top"]}> 
-      <Tabs
-        screenOptions={{
-          headerShown: false,
-          tabBarActiveTintColor: colors.primary,
-          tabBarInactiveTintColor: colors.subtle,
-        }}
-      >
-        <Tabs.Screen
-          name="home"
-          options={{
-            title: "Inicio",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="home-outline" color={color} size={size} />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="medications"
-          options={{
-            title: "Medicamentos",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="medkit-outline" color={color} size={size} />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="calendar"
-          options={{
-            title: "Calendario",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="calendar-outline" color={color} size={size} />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="symptoms"
-          options={{
-            title: "Síntomas",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="pulse-outline" color={color} size={size} />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="assistant"
-          options={{
-            title: "IA",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="sparkles-outline" color={color} size={size} />
-            ),
-          }}
-        />
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: palette.navy,
+        tabBarInactiveTintColor: palette.gray,
+        tabBarButton: HapticTab,
 
-        {/* RUTAS OCULTAS DEL TAB BAR */}
-        <Tabs.Screen name="profile" options={{ href: null }} />
-        <Tabs.Screen name="add-medication" options={{ href: null }} />
-        <Tabs.Screen name="medication-detail" options={{ href: null }} />
-        <Tabs.Screen name="register-symptom" options={{ href: null }} />
-        <Tabs.Screen name="edit-medication" options={{ href: null }} />
-        <Tabs.Screen name="symptom-detail" options={{ href: null }} />
-        <Tabs.Screen name="family" options={{ href: null }} />
-      </Tabs>
-    </SafeAreaView>
+        tabBarStyle: {
+          backgroundColor: "#FFFFFF",
+          borderTopColor: "#E5E7EB",
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: 60 + insets.bottom,
+          paddingBottom: insets.bottom,
+          paddingTop: 8,
+        },
+      }}
+    >
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: "Home",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home" size={size} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="medicamentos"
+        options={{
+          title: "Medicinas",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="medkit" size={size} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="calendario"
+        options={{
+          title: "Calendario",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="calendar" size={size} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="sintomas"
+        options={{
+          title: "Sintomas",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="pulse" size={size} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="ia"
+        options={{
+          title: "IA",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="sparkles" size={size} color={color} />
+          ),
+        }}
+      />
+    </Tabs>
   );
 }
